@@ -1,8 +1,8 @@
 import pygame
 
 class Weapon(object):
-    bullet_velocity = None
-    bullet_radius = None
+    bullet_velocity = 5
+    bullet_radius = 15
     color = None
 
     def __init__(self):
