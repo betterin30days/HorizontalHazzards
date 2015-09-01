@@ -1,10 +1,18 @@
 import pygame, sys
 from pygame.locals import *
+from weapon import *
 
 class Ship(pygame.sprite.Sprite):
+    view = None
+    #Add new sprites to list
     velocity = 0
-    def __init__(self, x, y):
+    weapon = None
+    weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
+
+    def __init__(self, view, x, y, weapon):
         pygame.sprite.Sprite.__init__(self)
+        self.view = view
+        self.weapon = weapon
         self.image = pygame.Surface([100,50])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
@@ -18,33 +26,15 @@ class Ship(pygame.sprite.Sprite):
         self.x = x
         self.y = y
 
+    def weapon_index_update(self, index):
+        self.weapon = self.weapons[index-1]
+
+    def shoot_bullet(self):
+        bullet = self.weapon.bullet_create(self.x, self.y)
+        bullet.add(self.view.all_sprites_group)
+
     def update(self):
         pass
-
-class Bullet(pygame.sprite.Sprite):
-    velocity = 5
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([30,30])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
-        self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
-        self.x = x
-        self.y = y
-        pygame.draw.circle(
-            self.image,
-            (0,255,0),
-            (15,15),
-            15,
-            0)
-
-    def update(self):
-        self.x += self.velocity
-        self.rect.center = (self.x, self.y)
-
-        if self.x > 1280:
-            self.kill()
 
 class View(object):
     clock = None
@@ -52,8 +42,7 @@ class View(object):
     background = None
     mouse_x, mouse_y = None, None
     ship = None
-
-    all_sprites_group = pygame.sprite.Group()
+    all_sprites_group = None
 
     def __init__(self):
         pygame.init()
@@ -61,12 +50,10 @@ class View(object):
         self.clock = pygame.time.Clock()
         self.background = pygame.Surface(self.screen.get_size()).convert()
         self.background.fill((0, 0, 0))
-        self.ship = Ship(100, 360)
-        self.ship.add(self.all_sprites_group)
 
-    def shoot_bullet(self):
-        bullet = Bullet(self.ship.x, self.ship.y)
-        bullet.add(self.all_sprites_group)
+        self.all_sprites_group = pygame.sprite.Group()
+        self.ship = Ship(self, 100, 360, BasicPew())
+        self.ship.add(self.all_sprites_group)
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -85,7 +72,17 @@ class View(object):
                 if event.key == K_p:
                     self.is_paused = not self.is_paused
                 elif event.key == K_SPACE:
-                    self.shoot_bullet()
+                    self.ship.shoot_bullet()
+                elif event.key == K_1:
+                    self.ship.weapon_index_update(1)
+                elif event.key == K_2:
+                    self.ship.weapon_index_update(2)
+                elif event.key == K_3:
+                    self.ship.weapon_index_update(3)
+                elif event.key == K_4:
+                    self.ship.weapon_index_update(4)
+                elif event.key == K_5:
+                    self.ship.weapon_index_update(5)
             elif event.type == QUIT:
                 self.quit()
 
