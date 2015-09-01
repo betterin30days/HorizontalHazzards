@@ -33,7 +33,7 @@ class Ship(pygame.sprite.Sprite):
 
     def shoot_bullet(self):
         bullet = self.weapon.bullet_create(self.x, self.y)
-        bullet.add(self.view.all_sprites_group)
+        bullet.add(self.view.all_sprites_group, self.view.bullet_group)
 
     def update(self, move_up, move_down, move_left, move_right):
         if move_up:
@@ -64,17 +64,32 @@ class Ship(pygame.sprite.Sprite):
         self.y += self.velocity_y
         self.rect.center = (self.x, self.y)
 
+class TestDummy(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface([50,50])
+        self.image.set_colorkey([1,1,1])
+        self.image.fill([1,1,1])
+        self.rect = self.image.get_rect()
+        self.rect.center = (900,360)
+        pygame.draw.circle(
+            self.image,
+            (255,0,0),
+            (25,25),
+            25,
+            0)
+
 class View(object):
     clock = None
     screen = None
     background = None
     mouse_x, mouse_y = None, None
     ship = None
+    test_dummy = None
     move_up = False
     move_down = False
     move_left = False
     move_right = False
-    ship_group = pygame.sprite.GroupSingle()
     all_sprites_group = None
 
     def __init__(self):
@@ -85,8 +100,13 @@ class View(object):
         self.background.fill((0, 0, 0))
 
         self.all_sprites_group = pygame.sprite.Group()
+        self.ship_group = pygame.sprite.GroupSingle()
+        self.bullet_group = pygame.sprite.Group()
+        self.baddie_group = pygame.sprite.Group()
         self.ship = Ship(self, 100, 360, BasicPew())
         self.ship.add(self.ship_group)
+        self.test_dummy = TestDummy()
+        self.test_dummy.add(self.all_sprites_group, self.baddie_group)
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -142,7 +162,13 @@ class View(object):
 
     def update(self):
         delta = self.clock.tick(60)
-        self.FPS = int(1000 / delta)
+
+        collision = pygame.sprite.groupcollide(
+            self.bullet_group,
+            self.baddie_group,
+            True,
+            False)
+
         self.ship.update(
             self.move_up,
             self.move_down,
@@ -156,7 +182,7 @@ class View(object):
 
         #Frames per second
         font = pygame.font.Font(None, 36)
-        text = font.render(str(self.FPS), 1, (10, 10, 255))
+        text = font.render(str(self.clock.get_fps()), 1, (10, 10, 255))
         textpos = text.get_rect()
         textpos.centerx = self.screen.get_rect().topright[0]-textpos.w
         self.screen.blit(text, textpos)
