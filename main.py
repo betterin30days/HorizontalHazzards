@@ -38,13 +38,21 @@ class View(object):
         self.test_dummy = TestDummy(self)
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
 
+        test_waypoint = [(700,400), (500,300), (200, 600)]
+
         self.spawners = [
             Spawner(
                 self,
                 1.0,
                 3.0,
                 5,
-                lambda: Baddie(900,500))]
+                lambda: Baddie(900,500,test_waypoint)),
+            Spawner(
+                self,
+                1.0,
+                3.0,
+                5,
+                lambda: Baddie(900,200))]
 
     def handle_events(self):
         """Translate user input to model actions"""

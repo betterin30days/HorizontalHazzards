@@ -57,5 +57,5 @@ class Spawner(object):
 
             if self.spawn_count_current == self.spawn_count_total:
                 self.is_spawning = False
-        elif self.time_since_created >= self.time_start * 1000:
+        elif self.time_since_created >= self.time_start * 1000 and not self.is_completed():
             self.start_spawn()
