@@ -1,4 +1,4 @@
-"""Representing possible orientation of object on board"""
+"""Representing movement directions"""
 class Direction(object):
     """basic properties for name and deltas for travel"""
     name = ""

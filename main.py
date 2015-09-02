@@ -3,6 +3,7 @@ from pygame.locals import *
 from weapon import *
 from gameobject import *
 from direction import *
+from shared import *
 
 class View(object):
     clock = None
@@ -24,16 +25,13 @@ class View(object):
 
         self.all_sprites_group = pygame.sprite.Group()
         self.ship_group = pygame.sprite.GroupSingle()
-        self.bullet_group = pygame.sprite.Group()
+        self.hero_bullet_group = pygame.sprite.Group()
+        self.baddie_bullet_group = pygame.sprite.Group()
         self.baddie_group = pygame.sprite.Group()
         self.ship = Ship(self, 100, 360, BasicPew())
         self.ship.add(self.all_sprites_group, self.ship_group)
-        self.test_dummy = TestDummy()
+        self.test_dummy = TestDummy(self)
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
-        self.move_up = Direction("Up", 0, -1)
-        self.move_down = Direction("Down", 0, 1)
-        self.move_left = Direction("Left", -1, 0)
-        self.move_right = Direction("Right", 1, 0)
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -64,22 +62,22 @@ class View(object):
                 elif event.key == K_5:
                     self.ship.weapon_index_update(5)
                 elif event.key == K_w:
-                    self.move_y.append(self.move_up)
+                    self.move_y.append(Shared.UP)
                 elif event.key == K_s:
-                    self.move_y.append(self.move_down)
+                    self.move_y.append(Shared.DOWN)
                 elif event.key == K_a:
-                    self.move_x.append(self.move_left)
+                    self.move_x.append(Shared.LEFT)
                 elif event.key == K_d:
-                    self.move_x.append(self.move_right)
+                    self.move_x.append(Shared.RIGHT)
             elif event.type == KEYUP:
                 if event.key == K_w:
-                    self.move_y.remove(self.move_up)
+                    self.move_y.remove(Shared.UP)
                 elif event.key == K_s:
-                    self.move_y.remove(self.move_down)
+                    self.move_y.remove(Shared.DOWN)
                 elif event.key == K_a:
-                    self.move_x.remove(self.move_left)
+                    self.move_x.remove(Shared.LEFT)
                 elif event.key == K_d:
-                    self.move_x.remove(self.move_right)
+                    self.move_x.remove(Shared.RIGHT)
 
             elif event.type == QUIT:
                 self.quit()
@@ -91,10 +89,14 @@ class View(object):
         delta = self.clock.tick(60)
 
         collision = pygame.sprite.groupcollide(
-            self.bullet_group,
+            self.hero_bullet_group,
             self.baddie_group,
             True,
             False)
+        #collision returns a dictionary key=bullet sprite. value=list of sprites it collides with
+
+        for bullet, baddie in collision.items():
+            baddie[0].on_hit(bullet.damage)
 
         dx = None
         dy = None
