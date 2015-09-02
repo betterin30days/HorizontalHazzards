@@ -17,18 +17,41 @@ class GameObject(pygame.sprite.Sprite):
     experience_total = 0
     level = 0
     weapon = None
+    damage_dealt_total = 0
+
     def __init__(self):
         pass
+
+    def is_alive(self):
+        return self.health > 0
 
     def velocity_update(self, dx, dy):
         self.move_x = dx
         self.move_y = dy
 
     def on_hit(self, damage_received):
+        if damage_received > self.health:
+            damage_received = self.health
+
         self.health -= damage_received
+        return damage_received
+
+    def on_damage_dealt(self, target, damage):
+        self.damage_dealt_total += damage
+        print("Total damage dealt: {}".format(self.damage_dealt_total))
+        if not target.is_alive():
+            self.on_killed(target)
+
+    def on_weapon_update(self, weapon):
+        self.weapon = weapon
+        self.weapon.on_pick_up(self)
+
+    def on_killed(self, target):
+        self.experience_total += target.experience_total
+        print ("xp: {}; killed {}".format(self.experience_total, target))
 
     def on_kill(self):
-        print ("dead!")
+        pass
 
     def move(self):
         if self.move_y:
@@ -73,7 +96,7 @@ class Ship(GameObject):
     def __init__(self, view, x, y, weapon):
         pygame.sprite.Sprite.__init__(self)
         self.view = view
-        self.weapon = weapon
+        self.on_weapon_update (weapon)
         self.image = pygame.Surface([100,50])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
@@ -92,7 +115,7 @@ class Ship(GameObject):
         self.level = 1
 
     def weapon_index_update(self, index):
-        self.weapon = self.weapons[index-1]
+        self.on_weapon_update (self.weapons[index-1])
 
     def shoot_bullet(self):
         bullet = self.weapon.bullet_create(self.x, self.y)
@@ -150,9 +173,9 @@ class TestDummy(GameObject):
             0)
         self.max_health = 100
         self.health = self.max_health
+        self.experience_total = 10
 
     def on_kill(self):
-        super().on_kill()
         self.test_dummy = TestDummy(self.view)
         self.test_dummy.add(self.view.all_sprites_group, self.view.baddie_group)
         self.kill()

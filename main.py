@@ -95,8 +95,9 @@ class View(object):
             False)
         #collision returns a dictionary key=bullet sprite. value=list of sprites it collides with
 
-        for bullet, baddie in collision.items():
-            baddie[0].on_hit(bullet.damage)
+        for bullet, enemys in collision.items():
+            for enemy in enemys:
+                bullet.on_collision(enemy)
 
         dx = None
         dy = None

@@ -10,10 +10,10 @@ class Weapon(object):
     def __init__(self):
         pass
 
-    def OnPickUp(self, owner):
+    def on_pick_up(self, owner):
         self.owner = owner
 
-    def OnDrop(self):
+    def on_drop(self):
         self.owner = None
 
     def bullet_create(self, x, y):
@@ -52,10 +52,10 @@ class Bullet(pygame.sprite.Sprite):
             self.radius,
             0)
 
-    def OnCollision(self, target):
-        damage_taken = target.OnHit(self.damage)
+    def on_collision(self, target):
+        damage_taken = target.on_hit(self.damage)
         if damage_taken:
-            self.owner.OnDamageDealt(target, damage_taken)
+            self.owner.on_damage_dealt(target, damage_taken)
 
     def update(self):
         self.x += self.velocity
