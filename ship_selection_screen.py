@@ -1,11 +1,11 @@
-import pygame, sys
-from pygame.locals import *
+from screen import *
 from weapon import *
 from gameobject import *
 from direction import *
 from shared import *
 from ship import *
 from baddie import *
+from game_screen import *
 
 class Selector(pygame.sprite.Sprite):
     positions = []
@@ -33,10 +33,10 @@ class Selector(pygame.sprite.Sprite):
             self.x -= 300
             self.index -= 1
 
-    def update(self):
+    def update(self, delta):
         self.rect.center = (self.x, self.y)
 
-class View(object):
+class Ship_Selection_Screen(Screen):
     clock = None
     screen = None
     background = None
@@ -82,17 +82,14 @@ class View(object):
                     self.selector.move(1)
                 elif event.key == K_RETURN:
                     self.selectected_ship = self.ships[self.selector.index]
-                    print (self.selectected_ship)
-
+                    self.screen_manager.screen_remove(self)
+                    self.screen_manager.screen_add(Game_Screen(self.screen_manager, self.selectected_ship))
             elif event.type == QUIT:
                 self.quit()
 
-        if clicked:
-            pass
-
-    def update(self):
-        delta = self.clock.tick(60)
-        self.all_sprites_group.update()
+    def update(self, delta):
+        for sprite in self.all_sprites_group:
+            sprite.update(delta)
 
     def display(self):
         """Blit everything to the screen"""
@@ -112,11 +109,3 @@ class View(object):
         """Clean up assets and unload graphic objects"""
         pygame.quit()
         sys.exit()
-
-view = View()
-#view.init()
-while 1:
-    view.handle_events()
-    view.update()
-    view.display()
-view.quit()
