@@ -4,6 +4,8 @@ from weapon import *
 from gameobject import *
 from direction import *
 from shared import *
+from ship import *
+from baddie import *
 
 class View(object):
     clock = None
@@ -28,7 +30,7 @@ class View(object):
         self.hero_bullet_group = pygame.sprite.Group()
         self.baddie_bullet_group = pygame.sprite.Group()
         self.baddie_group = pygame.sprite.Group()
-        self.ship = Ship(self, 100, 360, BasicPew())
+        self.ship = AverageShip(self, 100, 360, BasicPew())
         self.ship.add(self.all_sprites_group, self.ship_group)
         self.test_dummy = TestDummy(self)
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
