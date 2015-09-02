@@ -5,12 +5,20 @@ class Weapon(object):
     bullet_radius = 15
     bullet_color = (0,255,0)
     bullet_damage = 1
+    owner = None
 
     def __init__(self):
         pass
 
+    def OnPickUp(self, owner):
+        self.owner = owner
+
+    def OnDrop(self):
+        self.owner = None
+
     def bullet_create(self, x, y):
         return Bullet(x, y,
+                self.owner,
                 self.bullet_color,
                 self.bullet_radius,
                 self.bullet_velocity,
@@ -21,10 +29,12 @@ class Bullet(pygame.sprite.Sprite):
     color = None
     radius = None
     damage = None
+    owner = None
 
-    def __init__(self, x, y, color, radius, velocity, damage):
+    def __init__(self, x, y, owner, color, radius, velocity, damage):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([30,30])
+        self.owner = owner
+        self.image = pygame.Surface([radius*2,radius*2])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
         self.rect = self.image.get_rect()
@@ -38,14 +48,18 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.circle(
             self.image,
             self.color,
-            (15,15),
+            (self.radius, self.radius),
             self.radius,
             0)
+
+    def OnCollision(self, target):
+        damage_taken = target.OnHit(self.damage)
+        if damage_taken:
+            self.owner.OnDamageDealt(target, damage_taken)
 
     def update(self):
         self.x += self.velocity
         self.rect.center = (self.x, self.y)
-
         if self.x > 1280:
             self.kill()
 
