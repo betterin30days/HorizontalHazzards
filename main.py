@@ -2,6 +2,7 @@ import pygame, sys
 from pygame.locals import *
 from weapon import *
 from gameobject import *
+from direction import *
 
 class View(object):
     clock = None
@@ -10,10 +11,8 @@ class View(object):
     mouse_x, mouse_y = None, None
     ship = None
     test_dummy = None
-    move_up = False
-    move_down = False
-    move_left = False
-    move_right = False
+    move_x = []
+    move_y = []
     all_sprites_group = None
 
     def __init__(self):
@@ -28,9 +27,13 @@ class View(object):
         self.bullet_group = pygame.sprite.Group()
         self.baddie_group = pygame.sprite.Group()
         self.ship = Ship(self, 100, 360, BasicPew())
-        self.ship.add(self.ship_group)
+        self.ship.add(self.all_sprites_group, self.ship_group)
         self.test_dummy = TestDummy()
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
+        self.move_up = Direction("Up", 0, -1)
+        self.move_down = Direction("Down", 0, 1)
+        self.move_left = Direction("Left", -1, 0)
+        self.move_right = Direction("Right", 1, 0)
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -61,22 +64,22 @@ class View(object):
                 elif event.key == K_5:
                     self.ship.weapon_index_update(5)
                 elif event.key == K_w:
-                    self.move_up = True
+                    self.move_y.append(self.move_up)
                 elif event.key == K_s:
-                    self.move_down = True
+                    self.move_y.append(self.move_down)
                 elif event.key == K_a:
-                    self.move_left = True
+                    self.move_x.append(self.move_left)
                 elif event.key == K_d:
-                    self.move_right = True
+                    self.move_x.append(self.move_right)
             elif event.type == KEYUP:
                 if event.key == K_w:
-                    self.move_up = False
+                    self.move_y.remove(self.move_up)
                 elif event.key == K_s:
-                    self.move_down = False
+                    self.move_y.remove(self.move_down)
                 elif event.key == K_a:
-                    self.move_left = False
+                    self.move_x.remove(self.move_left)
                 elif event.key == K_d:
-                    self.move_right = False
+                    self.move_x.remove(self.move_right)
 
             elif event.type == QUIT:
                 self.quit()
@@ -93,11 +96,14 @@ class View(object):
             True,
             False)
 
-        self.ship.update(
-            self.move_up,
-            self.move_down,
-            self.move_left,
-            self.move_right)
+        dx = None
+        dy = None
+        if self.move_x:
+            dx = self.move_x[len(self.move_x)-1]
+        if self.move_y:
+            dy = self.move_y[len(self.move_y)-1]
+        self.ship.velocity_update(dx,dy)
+
         self.all_sprites_group.update()
 
     def display(self):
