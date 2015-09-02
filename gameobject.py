@@ -5,9 +5,15 @@ class GameObject(pygame.sprite.Sprite):
     def __init__(self):
         pass
 
+    def velocity_update(self, dx, dy):
+        self.move_x = dx
+        self.move_y = dy
+
 class Ship(GameObject):
     view = None
     #Add new sprites to list
+    move_x = None
+    move_y = None
     velocity_x = 0
     velocity_y = 0
     max_velocity = 5
@@ -38,25 +44,27 @@ class Ship(GameObject):
         bullet = self.weapon.bullet_create(self.x, self.y)
         bullet.add(self.view.all_sprites_group, self.view.bullet_group)
 
-    def update(self, move_up, move_down, move_left, move_right):
-        if move_up:
-            self.velocity_y += -5
-            self.velocity_y = max(-5, self.velocity_y)
-        elif move_down:
-            self.velocity_y += 5
-            self.velocity_y = min(5, self.velocity_y)
+    def update(self):
+        if self.move_y:
+            if self.move_y.y_delta < 0:
+                self.velocity_y += -1
+                self.velocity_y = max(-5, self.velocity_y)
+            elif self.move_y.y_delta > 0:
+                self.velocity_y += 1
+                self.velocity_y = min(5, self.velocity_y)
         else:
             if self.velocity_y > 0:
                 self.velocity_y -= 1
             elif self.velocity_y < 0:
                 self.velocity_y += 1
 
-        if move_right:
-            self.velocity_x += 5
-            self.velocity_x = min(5, self.velocity_x)
-        elif move_left:
-            self.velocity_x += -5
-            self.velocity_x = max(-5, self.velocity_x)
+        if self.move_x:
+            if self.move_x.x_delta < 0:
+                self.velocity_x += -1
+                self.velocity_x = max(-5, self.velocity_x)
+            elif self.move_x.x_delta > 0:
+                self.velocity_x += 1
+                self.velocity_x = min(5, self.velocity_x)
         else:
             if self.velocity_x > 0:
                 self.velocity_x -= 1
