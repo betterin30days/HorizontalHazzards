@@ -138,8 +138,10 @@ class TestDummy(GameObject):
         self.image = pygame.Surface([50,50])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
+        self.x = 900
+        self.y = 360
         self.rect = self.image.get_rect()
-        self.rect.center = (900,360)
+        self.rect.center = (self.x, self.y)
         pygame.draw.circle(
             self.image,
             (255,0,0),
