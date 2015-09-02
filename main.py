@@ -6,6 +6,7 @@ from direction import *
 from shared import *
 from ship import *
 from baddie import *
+from spawner import *
 
 class View(object):
     clock = None
@@ -18,6 +19,7 @@ class View(object):
     move_y = []
     all_sprites_group = None
     is_paused = False
+    spawners = [] #later there may be a level that holds all of the spawners for each wave
 
     def __init__(self):
         pygame.init()
@@ -35,6 +37,14 @@ class View(object):
         self.ship.add(self.all_sprites_group, self.ship_group)
         self.test_dummy = TestDummy(self)
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
+
+        self.spawners = [
+            Spawner(
+                self,
+                1.0,
+                3.0,
+                5,
+                lambda: Baddie(900,500))]
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -111,6 +121,10 @@ class View(object):
         if self.move_y:
             dy = self.move_y[len(self.move_y)-1]
         self.ship.velocity_update(dx, dy)
+
+        for spawner in self.spawners:
+            spawner.update(delta)
+
         for sprite in self.all_sprites_group:
             sprite.update(delta)
 
