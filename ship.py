@@ -30,8 +30,8 @@ class Ship(GameObject):
         self.health = self.max_health
         print ("Level {}! Next level at {} xp".format(self.level, self.next_level))
 
-    def update(self):
-        super().update()
+    def update(self, delta):
+        super().update(delta)
         if self.experience_total >= self.next_level:
             self.on_level_up()
 
@@ -61,8 +61,8 @@ class AverageShip(Ship):
         self.health_multiplier = 1.05
         self.damage_multiplier = 1.05
 
-    def update(self):
-        super().update()
+    def update(self, delta):
+        super().update(delta)
 
 class Tank(Ship):
     #Add new sprites to list
@@ -90,8 +90,8 @@ class Tank(Ship):
         self.health_multiplier = 1.08
         self.damage_multiplier = 1.02
 
-    def update(self):
-        super().update()
+    def update(self, delta):
+        super().update(delta)
 
 class GlassCannon(Ship):
     #Add new sprites to list
@@ -119,5 +119,5 @@ class GlassCannon(Ship):
         self.health_multiplier = 1.02
         self.damage_multiplier = 1.08
 
-    def update(self):
-        super().update()
+    def update(self, delta):
+        super().update(delta)

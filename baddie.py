@@ -27,8 +27,8 @@ class Baddie(GameObject):
     def on_kill(self):
         self.kill()
 
-    def update(self):
-        super().update()
+    def update(self, delta):
+        super().update(delta)
 
 class TestDummy(Baddie):
     view = None
@@ -57,5 +57,5 @@ class TestDummy(Baddie):
         self.test_dummy.add(self.view.all_sprites_group, self.view.baddie_group)
         self.kill()
 
-    def update(self):
-        super().update()
+    def update(self, delta):
+        super().update(delta)

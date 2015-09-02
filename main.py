@@ -17,6 +17,7 @@ class View(object):
     move_x = []
     move_y = []
     all_sprites_group = None
+    is_paused = False
 
     def __init__(self):
         pygame.init()
@@ -89,6 +90,8 @@ class View(object):
 
     def update(self):
         delta = self.clock.tick(60)
+        if self.is_paused:
+            delta = 0
 
         collision = pygame.sprite.groupcollide(
             self.hero_bullet_group,
@@ -107,9 +110,9 @@ class View(object):
             dx = self.move_x[len(self.move_x)-1]
         if self.move_y:
             dy = self.move_y[len(self.move_y)-1]
-        self.ship.velocity_update(dx,dy)
-
-        self.all_sprites_group.update()
+        self.ship.velocity_update(dx, dy)
+        for sprite in self.all_sprites_group:
+            sprite.update(delta)
 
     def display(self):
         """Blit everything to the screen"""
