@@ -22,6 +22,11 @@ class GameObject(pygame.sprite.Sprite):
     def __init__(self):
         pass
 
+    def update(self, delta):
+        self.move()
+        if self.health <= 0:
+            self.on_kill()
+
     def is_alive(self):
         return self.health > 0
 
@@ -83,8 +88,3 @@ class GameObject(pygame.sprite.Sprite):
         self.x += self.velocity_x
         self.y += self.velocity_y
         self.rect.center = (self.x, self.y)
-
-    def update(self):
-        self.move()
-        if self.health <= 0:
-            self.on_kill()

@@ -10,6 +10,9 @@ class Weapon(object):
     def __init__(self):
         pass
 
+    def update(self, delta):
+        pass
+
     def on_pick_up(self, owner):
         self.owner = owner
 
@@ -52,16 +55,16 @@ class Bullet(pygame.sprite.Sprite):
             self.radius,
             0)
 
+    def update(self, delta):
+        self.x += self.velocity * delta/100
+        self.rect.center = (self.x, self.y)
+        if self.x > 1280:
+            self.kill()
+
     def on_collision(self, target):
         damage_taken = target.on_hit(self.damage)
         if damage_taken:
             self.owner.on_damage_dealt(target, damage_taken)
-
-    def update(self):
-        self.x += self.velocity
-        self.rect.center = (self.x, self.y)
-        if self.x > 1280:
-            self.kill()
 
 class BasicPew(Weapon):
     def __init__(self):
