@@ -61,10 +61,10 @@ class Bullet(pygame.sprite.Sprite):
         if self.x > 1280:
             self.kill()
 
-    def on_collision(self, target, delta):
+    def on_collision(self, target):
         damage_taken = target.on_hit(self.damage)
         if damage_taken:
-            self.owner.on_damage_dealt(target, damage_taken, delta)
+            self.owner.on_damage_dealt(target, damage_taken)
 
 class BasicPew(Weapon):
     def __init__(self):

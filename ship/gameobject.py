@@ -45,11 +45,11 @@ class GameObject(pygame.sprite.Sprite):
         self.health -= damage_received
         return damage_received
 
-    def on_damage_dealt(self, target, damage, delta):
+    def on_damage_dealt(self, target, damage):
         self.damage_dealt_total += damage
         print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
         if not target.is_alive():
-            self.on_killed(target, delta)
+            self.on_killed(target)
 
     def on_weapon_update(self, weapon):
         self.weapon = weapon
@@ -72,17 +72,8 @@ class GameObject(pygame.sprite.Sprite):
             self.health += amount
         print ("Health updated to from {} to {}".format(before, self.health))
 
-    def on_killed(self, target, delta):
-        self.experience_total += target.experience_total
-        self.kills_total += 1
-        self.kill_streak += 1
-        self.time_since_kill = 0
-        self.track_kill_streak(delta)
-        print ("xp: {}; killed {}; total kills: {}; kill streak: {}".format(
-            self.experience_total,
-            target,
-            self.kills_total,
-            self.kill_streak))
+    def on_killed(self, target):
+        pass
 
     def on_death(self):
         pass

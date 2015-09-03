@@ -43,10 +43,10 @@ class Baddie(GameObject):
         self.view.all_sprites_group.add(drops)
         self.kill()
 
-    def on_collision(self, target, delta):
+    def on_collision(self, target):
         damage_taken = target.on_hit(self.damage_collision)
         if damage_taken:
-            self.on_damage_dealt(target, damage_taken, delta)
+            self.on_damage_dealt(target, damage_taken)
         self.on_death()
 
     def on_flee(self):
