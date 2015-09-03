@@ -6,8 +6,11 @@ from ship.gameobject import *
 class Baddie(GameObject):
     waypoint = []
     waypoint_index = 0
+    damage_collision = 10
+
     def __init__(self, x, y, waypoint = None):
         pygame.sprite.Sprite.__init__(self)
+        self.name = "Baddie"
         self.image = pygame.Surface([50,50])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
@@ -27,8 +30,14 @@ class Baddie(GameObject):
         self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
 
-    def on_kill(self):
+    def on_death(self):
         self.kill()
+
+    def on_collision(self, target):
+        damage_taken = target.on_hit(self.damage_collision)
+        if damage_taken:
+            self.on_damage_dealt(target, damage_taken)
+
 
     def update(self, delta):
         if self.waypoint and len(self.waypoint) > self.waypoint_index:
@@ -74,7 +83,7 @@ class TestDummy(Baddie):
         self.health = self.max_health
         self.experience_total = 10
 
-    def on_kill(self):
+    def on_death(self):
         self.test_dummy = TestDummy(self.view)
         self.test_dummy.add(self.view.all_sprites_group, self.view.baddie_group)
         self.kill()

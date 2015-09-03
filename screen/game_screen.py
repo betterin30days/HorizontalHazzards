@@ -116,10 +116,18 @@ class Game_Screen(Screen):
             True,
             False)
         #collision returns a dictionary key=bullet sprite. value=list of sprites it collides with
-
         for bullet, enemys in collision.items():
             for enemy in enemys:
                 bullet.on_collision(enemy)
+
+        collision = pygame.sprite.groupcollide(
+            self.baddie_group,
+            self.ship_group,
+            True,
+            False)
+        for baddie, ships in collision.items():
+            for ship in ships:
+                baddie.on_collision(ship)
 
         dx = None
         dy = None

@@ -11,6 +11,7 @@ class Ship(GameObject):
     level_interval = 2
     health_multiplier = 0.0
     damage_multiplier = 0.0
+    name = "Hero"
 
     def __init__(self):
         pass
