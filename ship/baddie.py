@@ -49,6 +49,9 @@ class Baddie(GameObject):
             self.on_damage_dealt(target, damage_taken)
         self.on_death()
 
+    def on_flee(self):
+        self.kill()
+
     def update(self, delta):
         if self.waypoint and len(self.waypoint) > self.waypoint_index:
             destination = self.waypoint[self.waypoint_index]
@@ -69,9 +72,9 @@ class Baddie(GameObject):
                 x = Shared.LEFT
                 y = None
             self.velocity_update(x, y)
-        super().update(delta)
         if self.x < 0:
-            self.kill()
+            self.on_flee()
+        super().update(delta)
 
 class TestDummy(Baddie):
     view = None

@@ -73,8 +73,7 @@ class GameObject(pygame.sprite.Sprite):
         print ("Health updated to from {} to {}".format(before, self.health))
 
     def on_killed(self, target):
-        self.experience_total += target.experience_total
-        print ("xp: {}; killed {}".format(self.experience_total, target))
+        pass
 
     def on_death(self):
         pass

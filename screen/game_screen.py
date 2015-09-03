@@ -115,6 +115,22 @@ class Game_Screen(Screen):
         if self.is_paused:
             delta = 0
 
+        dx = None
+        dy = None
+        if self.move_x:
+            dx = self.move_x[len(self.move_x)-1]
+        if self.move_y:
+            dy = self.move_y[len(self.move_y)-1]
+        self.ship.velocity_update(dx, dy)
+
+        for spawner in self.spawners:
+            if spawner.is_completed():
+                self.spawners.remove(spawner)
+            spawner.update(delta)
+        
+        for sprite in self.all_sprites_group:
+            sprite.update(delta)
+
         #Baddies being shot by Hero bullets
         collision = pygame.sprite.groupcollide(
             self.hero_bullet_group,
@@ -144,26 +160,7 @@ class Game_Screen(Screen):
         for drop, ships in collision.items():
             for ship in ships:
                 ship.on_droppable_pickup(drop)
-                drop.kill()
-
-        dx = None
-        dy = None
-        if self.move_x:
-            dx = self.move_x[len(self.move_x)-1]
-        if self.move_y:
-            dy = self.move_y[len(self.move_y)-1]
-        self.ship.velocity_update(dx, dy)
-
-        for drop in self.all_drops_group:
-            drop.update(delta)
-
-        for spawner in self.spawners:
-            if spawner.is_completed():
-                self.spawners.remove(spawner)
-            spawner.update(delta)
-        
-        for sprite in self.all_sprites_group:
-            sprite.update(delta)
+                drop.kill()   
 
     def display(self):
         """Blit everything to the screen"""
