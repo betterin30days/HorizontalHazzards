@@ -33,10 +33,13 @@ class Baddie(GameObject):
     def on_death(self):
         self.kill()
 
-    def on_collision(self, target):
+    def on_collision(self, target, delta):
         damage_taken = target.on_hit(self.damage_collision)
         if damage_taken:
-            self.on_damage_dealt(target, damage_taken)
+            self.on_damage_dealt(target, damage_taken, delta)
+
+    def on_flee(self):
+        self.kill()
 
 
     def update(self, delta):
@@ -59,6 +62,8 @@ class Baddie(GameObject):
                 x = Shared.LEFT
                 y = None
             self.velocity_update(x, y)
+        if self.x < 0:
+            self.on_flee()
         super().update(delta)
 
 class TestDummy(Baddie):
