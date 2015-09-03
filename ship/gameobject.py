@@ -1,6 +1,6 @@
 import pygame
-from weapon import *
-from shared import *
+from weapon.weapon import *
+from ship.shared import *
 
 class GameObject(pygame.sprite.Sprite):
     health = 0

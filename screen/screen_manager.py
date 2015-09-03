@@ -1,4 +1,4 @@
-from screen import *
+from .screen import *
 
 class Screen_Manager(object):
     clock = None

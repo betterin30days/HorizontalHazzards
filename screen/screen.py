@@ -1,6 +1,6 @@
-from screen_manager import *
 import pygame, sys
 from pygame.locals import *
+from .screen_manager import *
 
 class Screen(object):
     screen_manager = None

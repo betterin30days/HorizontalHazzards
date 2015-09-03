@@ -1,11 +1,11 @@
-from screen import *
-from weapon import *
-from gameobject import *
-from direction import *
-from shared import *
-from ship import *
-from baddie import *
-from game_screen import *
+from .screen import *
+from weapon.weapon import *
+from ship.gameobject import *
+from ship.direction import *
+from ship.shared import *
+from ship.ship import *
+from ship.baddie import *
+from .game_screen import *
 
 class Selector(pygame.sprite.Sprite):
     positions = []

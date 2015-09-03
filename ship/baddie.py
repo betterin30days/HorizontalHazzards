@@ -1,7 +1,7 @@
 import pygame
 from weapon import *
-from shared import *
-from gameobject import *
+from ship.shared import *
+from ship.gameobject import *
 
 class Baddie(GameObject):
     waypoint = []
