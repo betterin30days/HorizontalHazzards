@@ -26,9 +26,9 @@ class Baddie(GameObject):
             (25,25),
             25,
             0)
-        self.max_health = 100
-        self.health = self.max_health
-        self.max_velocity = 5
+        self.health_max = 100
+        self.health = self.health_max
+        self.velocity_max = 5
         self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
         self.experience_total = 10
@@ -47,6 +47,7 @@ class Baddie(GameObject):
         damage_taken = target.on_hit(self.damage_collision)
         if damage_taken:
             self.on_damage_dealt(target, damage_taken)
+        self.on_death()
 
     def update(self, delta):
         if self.waypoint and len(self.waypoint) > self.waypoint_index:
@@ -69,6 +70,8 @@ class Baddie(GameObject):
                 y = None
             self.velocity_update(x, y)
         super().update(delta)
+        if self.x < 0:
+            self.kill()
 
 class TestDummy(Baddie):
     view = None

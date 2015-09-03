@@ -10,9 +10,25 @@ class Ship(GameObject):
     health_multiplier = 0.0
     damage_multiplier = 0.0
     name = "Hero"
+    color = None
 
-    def __init__(self, view):
+    def __init__(self, view, x, y, weapon):
         super().__init__(view)
+        self.on_weapon_update (weapon)
+        self.image = pygame.Surface([100, 50])
+        self.image.set_colorkey([1, 1, 1])
+        self.image.fill([1, 1, 1])
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.center = (self.x, self.y)
+        pygame.draw.rect(
+            self.image,
+            self.color,
+            (0,0,100,50),
+            1)
+        self.health = self.health_max
+        self.level = 1
 
     def weapon_index_update(self, index):
         self.on_weapon_update (self.weapons[index-1])
@@ -24,9 +40,9 @@ class Ship(GameObject):
     def on_level_up(self):
         self.next_level *= self.level_interval
         self.level += 1
-        self.max_health *= self.health_multiplier
+        self.health_max *= self.health_multiplier
         #self.damage *= self.damage_multiplier
-        self.health = self.max_health
+        self.health = self.health_max
         print ("Level {}! Next level at {} xp".format(self.level, self.next_level))
 
     def update(self, delta):
@@ -34,89 +50,27 @@ class Ship(GameObject):
         if self.experience_total >= self.next_level:
             self.on_level_up()
 
+    def on_death(self):
+        print("YOU DIED")
+        self.kill()
+
 class AverageShip(Ship):
-    #Add new sprites to list
-
-    def __init__(self, view, x, y, weapon):
-        super().__init__(view)
-        pygame.sprite.Sprite.__init__(self)
-        self.on_weapon_update (weapon)
-        self.image = pygame.Surface([100,50])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
-        self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
-        pygame.draw.rect(
-            self.image,
-            (0,0,255),
-            (0,0,100,50),
-            1)
-        self.x = x
-        self.y = y
-        self.max_velocity = 5
-        self.max_health = 100
-        self.health = self.max_health
-        self.level = 1
-        self.health_multiplier = 1.05
-        self.damage_multiplier = 1.05
-
-    def update(self, delta):
-        super().update(delta)
+    color = (0, 0, 255)
+    velocity_max = 5
+    health_max = 100
+    health_multiplier = 1.05
+    damage_multiplier = 1.05
 
 class Tank(Ship):
-    #Add new sprites to list
-
-    def __init__(self, view, x, y, weapon):
-        super().__init__(view)
-        pygame.sprite.Sprite.__init__(self)
-        self.on_weapon_update (weapon)
-        self.image = pygame.Surface([100,50])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
-        self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
-        pygame.draw.rect(
-            self.image,
-            (0,255,0),
-            (0,0,100,50),
-            1)
-        self.x = x
-        self.y = y
-        self.max_velocity = 5
-        self.max_health = 150
-        self.health = self.max_health
-        self.level = 1
-        self.health_multiplier = 1.08
-        self.damage_multiplier = 1.02
-
-    def update(self, delta):
-        super().update(delta)
+    color = (0, 255, 0)
+    velocity_max = 4
+    health_max = 150
+    health_multiplier = 1.08
+    damage_multiplier = 1.02
 
 class GlassCannon(Ship):
-    #Add new sprites to list
-
-    def __init__(self, view, x, y, weapon):
-        super().__init__(view)
-        pygame.sprite.Sprite.__init__(self)
-        self.on_weapon_update (weapon)
-        self.image = pygame.Surface([100,50])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
-        self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
-        pygame.draw.rect(
-            self.image,
-            (255,0,0),
-            (0,0,100,50),
-            1)
-        self.x = x
-        self.y = y
-        self.max_velocity = 5
-        self.max_health = 80
-        self.health = self.max_health
-        self.level = 1
-        self.health_multiplier = 1.02
-        self.damage_multiplier = 1.08
-
-    def update(self, delta):
-        super().update(delta)
+    color = (255, 0, 0)
+    velocity_max = 6
+    health_max = 80
+    health_multiplier = 1.02
+    damage_multiplier = 1.08
