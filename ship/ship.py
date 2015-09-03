@@ -4,8 +4,6 @@ from ship.shared import *
 from ship.gameobject import *
 
 class Ship(GameObject):
-    view = None
-    #Add new sprites to list
     weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
     next_level = 100
     level_interval = 2
@@ -13,8 +11,8 @@ class Ship(GameObject):
     damage_multiplier = 0.0
     name = "Hero"
 
-    def __init__(self):
-        pass
+    def __init__(self, view):
+        super().__init__(view)
 
     def weapon_index_update(self, index):
         self.on_weapon_update (self.weapons[index-1])
@@ -40,8 +38,8 @@ class AverageShip(Ship):
     #Add new sprites to list
 
     def __init__(self, view, x, y, weapon):
+        super().__init__(view)
         pygame.sprite.Sprite.__init__(self)
-        self.view = view
         self.on_weapon_update (weapon)
         self.image = pygame.Surface([100,50])
         self.image.set_colorkey([1,1,1])
@@ -69,8 +67,8 @@ class Tank(Ship):
     #Add new sprites to list
 
     def __init__(self, view, x, y, weapon):
+        super().__init__(view)
         pygame.sprite.Sprite.__init__(self)
-        self.view = view
         self.on_weapon_update (weapon)
         self.image = pygame.Surface([100,50])
         self.image.set_colorkey([1,1,1])
@@ -98,8 +96,8 @@ class GlassCannon(Ship):
     #Add new sprites to list
 
     def __init__(self, view, x, y, weapon):
+        super().__init__(view)
         pygame.sprite.Sprite.__init__(self)
-        self.view = view
         self.on_weapon_update (weapon)
         self.image = pygame.Surface([100,50])
         self.image.set_colorkey([1,1,1])

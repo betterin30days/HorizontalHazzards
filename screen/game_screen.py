@@ -17,6 +17,11 @@ class Game_Screen(Screen):
     move_x = []
     move_y = []
     all_sprites_group = None
+    ship_group = None
+    baddie_group = None
+    all_drops_group = None
+    hero_bullet_group = None
+    baddie_bullet_group = None
     is_paused = False
     spawners = [] #later there may be a level that holds all of the spawners for each wave
 
@@ -31,6 +36,7 @@ class Game_Screen(Screen):
         self.hero_bullet_group = pygame.sprite.Group()
         self.baddie_bullet_group = pygame.sprite.Group()
         self.baddie_group = pygame.sprite.Group()
+        self.all_drops_group = pygame.sprite.Group()
         if not ship_class:
             ship_class = AverageShip
         self.ship = ship_class(self, 100, 360, BasicPew())
@@ -39,20 +45,19 @@ class Game_Screen(Screen):
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
 
         test_waypoint = [(700,400), (500,300), (200, 600)]
-
         self.spawners = [
             Spawner(
                 self,
                 1.0,
                 3.0,
                 5,
-                lambda: Baddie(900,500,test_waypoint)),
+                lambda: Baddie(self, 900, 500, test_waypoint)),
             Spawner(
                 self,
                 1.0,
                 3.0,
                 5,
-                lambda: Baddie(900,200))]
+                lambda: Baddie(self, 900, 200))]
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -110,16 +115,17 @@ class Game_Screen(Screen):
         if self.is_paused:
             delta = 0
 
+        #Baddies being shot by Hero bullets
         collision = pygame.sprite.groupcollide(
             self.hero_bullet_group,
             self.baddie_group,
             True,
             False)
-        #collision returns a dictionary key=bullet sprite. value=list of sprites it collides with
         for bullet, enemys in collision.items():
             for enemy in enemys:
                 bullet.on_collision(enemy)
 
+        #Hero colliding with Baddies
         collision = pygame.sprite.groupcollide(
             self.baddie_group,
             self.ship_group,
@@ -129,6 +135,17 @@ class Game_Screen(Screen):
             for ship in ships:
                 baddie.on_collision(ship)
 
+        #Hero picking up droppables
+        collision = pygame.sprite.groupcollide(
+            self.all_drops_group,
+            self.ship_group,
+            True,
+            False)
+        for drop, ships in collision.items():
+            for ship in ships:
+                ship.on_droppable_pickup(drop)
+                drop.kill()
+
         dx = None
         dy = None
         if self.move_x:
@@ -137,7 +154,12 @@ class Game_Screen(Screen):
             dy = self.move_y[len(self.move_y)-1]
         self.ship.velocity_update(dx, dy)
 
+        for drop in self.all_drops_group:
+            drop.update(delta)
+
         for spawner in self.spawners:
+            if spawner.is_completed():
+                self.spawners.remove(spawner)
             spawner.update(delta)
         
         for sprite in self.all_sprites_group:
@@ -146,7 +168,6 @@ class Game_Screen(Screen):
     def display(self):
         """Blit everything to the screen"""
         self.screen.blit(self.background, (0, 0))
-
         self.all_sprites_group.draw(self.screen)
         self.ship_group.draw(self.screen)
         pygame.display.update()

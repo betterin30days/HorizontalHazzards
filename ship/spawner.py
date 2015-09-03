@@ -45,7 +45,6 @@ class Spawner(object):
 
     def update(self, delta):
         self.time_since_created += delta
-
         if self.is_spawning:
             if self.time_since_spawn is not None:
                 self.time_since_spawn += delta

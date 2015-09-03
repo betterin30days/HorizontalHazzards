@@ -3,9 +3,11 @@ from weapon.weapon import *
 from ship.shared import *
 
 class GameObject(pygame.sprite.Sprite):
+    view = None
     name = ""
     health = 0
     max_health = 0
+    currency = 0
     x = 0
     y = 0
     move_x = None
@@ -20,8 +22,8 @@ class GameObject(pygame.sprite.Sprite):
     weapon = None
     damage_dealt_total = 0
 
-    def __init__(self):
-        pass
+    def __init__(self, view):
+        self.view = view
 
     def update(self, delta):
         self.move()
@@ -51,6 +53,15 @@ class GameObject(pygame.sprite.Sprite):
     def on_weapon_update(self, weapon):
         self.weapon = weapon
         self.weapon.on_pick_up(self)
+
+    def on_droppable_pickup(self, droppable):
+        droppable.on_pickup(self)
+        droppable.on_use()
+
+    def currency_update(self, amount):
+        before = self.currency
+        self.currency += amount
+        print ("Currency updated to from {} to {}".format(before, self.currency))
 
     def on_killed(self, target):
         self.experience_total += target.experience_total

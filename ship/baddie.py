@@ -2,20 +2,22 @@ import pygame
 from weapon import *
 from ship.shared import *
 from ship.gameobject import *
+from weapon.droppable import *
 
 class Baddie(GameObject):
     waypoint = []
     waypoint_index = 0
     damage_collision = 10
 
-    def __init__(self, x, y, waypoint = None):
+    def __init__(self, view, x, y, waypoint = None):
+        super().__init__(view)
         pygame.sprite.Sprite.__init__(self)
         self.name = "Baddie"
         self.image = pygame.Surface([50,50])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
         self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
+        self.rect.center = (x, y)
         self.x = x
         self.y = y
         pygame.draw.circle(
@@ -29,15 +31,22 @@ class Baddie(GameObject):
         self.max_velocity = 5
         self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
+        self.experience_total = 10
 
     def on_death(self):
+        drops = Droppable_Factory.drop_generate(self.name)
+        x = self.x
+        for drop in drops:
+            drop.draw(x, self.y)
+            x += 10
+        self.view.all_drops_group.add(drops)
+        self.view.all_sprites_group.add(drops)
         self.kill()
 
     def on_collision(self, target):
         damage_taken = target.on_hit(self.damage_collision)
         if damage_taken:
             self.on_damage_dealt(target, damage_taken)
-
 
     def update(self, delta):
         if self.waypoint and len(self.waypoint) > self.waypoint_index:
@@ -64,25 +73,9 @@ class Baddie(GameObject):
 class TestDummy(Baddie):
     view = None
     def __init__(self, view):
-        pygame.sprite.Sprite.__init__(self)
-        self.view = view
-        self.image = pygame.Surface([50,50])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
-        self.x = 900
-        self.y = 360
-        self.rect = self.image.get_rect()
-        self.rect.center = (self.x, self.y)
-        pygame.draw.circle(
-            self.image,
-            (255,0,0),
-            (25,25),
-            25,
-            0)
-        self.max_health = 100
-        self.health = self.max_health
-        self.experience_total = 10
-
+        super().__init__(view, 900, 360)
+        self.velocity_update(None, None)
+  
     def on_death(self):
         self.test_dummy = TestDummy(self.view)
         self.test_dummy.add(self.view.all_sprites_group, self.view.baddie_group)
