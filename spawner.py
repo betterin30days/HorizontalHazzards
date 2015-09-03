@@ -6,12 +6,14 @@ class Spawner(object):
     view = None
         #Link to owner of sprite groups
     time_start = None
-        #When spawning will begin
-    time_delay = None
-        #At what delay should new entities be created
+        #When spawning will begin. Measured in seconds
     time_since_created = 0
+        #Amount of time since spawner was created
+    time_delay = None
+        #At what delay should new entities be created. Measured in seconds
+    time_since_spawn = None
         #When last entity was created
-    spawn_count_total = None
+    spawn_count_total = 0
         #Amount which will be created
     spawn_count_current = 0
         #Amount currently created
@@ -42,13 +44,18 @@ class Spawner(object):
             self.spawn_count_total == self.spawn_count_current)
 
     def update(self, delta):
+        self.time_since_created += delta
+
         if self.is_spawning:
-            self.time_since_created += delta
-            if not self.time_since_created or self.time_since_created > self.time_delay:
-                #self.view.add_entity(self.entity_class())
-                print(self.entity_class())
-                self.time_since_created = 0
+            if self.time_since_spawn is not None:
+                self.time_since_spawn += delta
+            if self.time_since_spawn is None or self.time_since_spawn > self.time_delay * 1000:
+                baddie = self.entity_class()
+                baddie.add(self.view.all_sprites_group, self.view.baddie_group)
+                self.time_since_spawn = 0
                 self.spawn_count_current += 1
 
             if self.spawn_count_current == self.spawn_count_total:
                 self.is_spawning = False
+        elif self.time_since_created >= self.time_start * 1000 and not self.is_completed():
+            self.start_spawn()
