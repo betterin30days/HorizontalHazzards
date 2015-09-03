@@ -1,7 +1,7 @@
 import pygame
 from weapon import *
-from shared import *
-from gameobject import *
+from ship.shared import *
+from ship.gameobject import *
 
 class Ship(GameObject):
     view = None
@@ -11,6 +11,7 @@ class Ship(GameObject):
     level_interval = 2
     health_multiplier = 0.0
     damage_multiplier = 0.0
+    name = "Hero"
 
     def __init__(self):
         pass

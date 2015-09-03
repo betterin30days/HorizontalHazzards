@@ -1,5 +1,5 @@
 import pygame
-from gameobject import *
+from ship.gameobject import *
 
 class Spawner(object):
     '''create gameobjects'''

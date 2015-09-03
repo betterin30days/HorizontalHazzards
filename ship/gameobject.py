@@ -1,8 +1,9 @@
 import pygame
-from weapon import *
-from shared import *
+from weapon.weapon import *
+from ship.shared import *
 
 class GameObject(pygame.sprite.Sprite):
+    name = ""
     health = 0
     max_health = 0
     x = 0
@@ -25,7 +26,7 @@ class GameObject(pygame.sprite.Sprite):
     def update(self, delta):
         self.move()
         if self.health <= 0:
-            self.on_kill()
+            self.on_death()
 
     def is_alive(self):
         return self.health > 0
@@ -43,7 +44,7 @@ class GameObject(pygame.sprite.Sprite):
 
     def on_damage_dealt(self, target, damage):
         self.damage_dealt_total += damage
-        print("Total damage dealt: {}".format(self.damage_dealt_total))
+        print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
         if not target.is_alive():
             self.on_killed(target)
 
@@ -55,7 +56,7 @@ class GameObject(pygame.sprite.Sprite):
         self.experience_total += target.experience_total
         print ("xp: {}; killed {}".format(self.experience_total, target))
 
-    def on_kill(self):
+    def on_death(self):
         pass
 
     def move(self):

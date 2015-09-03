@@ -1,4 +1,4 @@
-from direction import *
+from ship.direction import *
 
 class Shared:
     UP = Direction("Up", 0, -1)
