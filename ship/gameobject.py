@@ -3,25 +3,28 @@ from weapon.weapon import *
 from ship.shared import *
 
 class GameObject(pygame.sprite.Sprite):
+    view = None
     name = ""
     health = 0
-    max_health = 0
+    health_max = 0
+    currency = 0
     x = 0
     y = 0
     move_x = None
     move_y = None
     velocity_x = 0
     velocity_y = 0
-    max_velocity = 0
+    velocity_max = 0
     acceleration = 0
-    max_acceleration = 0
+    acceleration_max = 0
     experience_total = 0
     level = 0
     weapon = None
     damage_dealt_total = 0
 
-    def __init__(self):
-        pass
+    def __init__(self, view):
+        pygame.sprite.Sprite.__init__(self)
+        self.view = view
 
     def update(self, delta):
         self.move()
@@ -52,6 +55,23 @@ class GameObject(pygame.sprite.Sprite):
         self.weapon = weapon
         self.weapon.on_pick_up(self)
 
+    def on_droppable_pickup(self, droppable):
+        droppable.on_pickup(self)
+        droppable.on_use()
+
+    def currency_update(self, amount):
+        before = self.currency
+        self.currency += amount
+        print ("Currency updated to from {} to {}".format(before, self.currency))
+
+    def health_update(self, amount):
+        before = self.health
+        if self.health + amount > self.health_max:
+            self.health = self.health_max
+        else:
+            self.health += amount
+        print ("Health updated to from {} to {}".format(before, self.health))
+
     def on_killed(self, target):
         self.experience_total += target.experience_total
         print ("xp: {}; killed {}".format(self.experience_total, target))
@@ -63,10 +83,10 @@ class GameObject(pygame.sprite.Sprite):
         if self.move_y:
             if self.move_y.y_delta < 0:
                 self.velocity_y += -1
-                self.velocity_y = max(-self.max_velocity, self.velocity_y)
+                self.velocity_y = max(-self.velocity_max, self.velocity_y)
             elif self.move_y.y_delta > 0:
                 self.velocity_y += 1
-                self.velocity_y = min(self.max_velocity, self.velocity_y)
+                self.velocity_y = min(self.velocity_max, self.velocity_y)
         else:
             if self.velocity_y > 0:
                 self.velocity_y -= 1
@@ -76,10 +96,10 @@ class GameObject(pygame.sprite.Sprite):
         if self.move_x:
             if self.move_x.x_delta < 0:
                 self.velocity_x += -1
-                self.velocity_x = max(-self.max_velocity, self.velocity_x)
+                self.velocity_x = max(-self.velocity_max, self.velocity_x)
             elif self.move_x.x_delta > 0:
                 self.velocity_x += 1
-                self.velocity_x = min(self.max_velocity, self.velocity_x)
+                self.velocity_x = min(self.velocity_max, self.velocity_x)
         else:
             if self.velocity_x > 0:
                 self.velocity_x -= 1
