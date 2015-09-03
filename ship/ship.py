@@ -9,6 +9,9 @@ class Ship(GameObject):
     level_interval = 2
     health_multiplier = 0.0
     damage_multiplier = 0.0
+    kills_total = 0
+    time_since_kill = 0.0
+    kill_streak = 0
     name = "Hero"
     color = None
 
@@ -45,10 +48,18 @@ class Ship(GameObject):
         self.health = self.health_max
         print ("Level {}! Next level at {} xp".format(self.level, self.next_level))
 
+    def track_kill_streak(self, delta):
+        self.time_since_kill += delta
+        if self.time_since_kill > 3000:
+            self.time_since_kill = 0
+            self.kill_streak = 0 
+
     def update(self, delta):
         super().update(delta)
         if self.experience_total >= self.next_level:
             self.on_level_up()
+        if self.time_since_kill:
+            self.track_kill_streak(delta)
 
     def on_death(self):
         print("YOU DIED")
