@@ -5,7 +5,7 @@ from ship.gameobject import *
 from weapon.droppable import *
 from assets.art.spritesheet import *
 
-class Baddie(Ship):
+class Baddie(Ship, Spritesheet):
     waypoint = []
     waypoint_index = 0
     damage_collision = 10
@@ -15,23 +15,25 @@ class Baddie(Ship):
     animation_counter = 0
     animation_time_ms = 200
     animation_current_ms = 0
+    animations = []
+    #TODO serious problem with sharing spritesheets
 
     def __init__(self, view, x, y, waypoint = None, level = None, weapon = None):
         Ship.__init__(self, view)
-        pygame.sprite.Sprite.__init__(self)
+        Spritesheet.__init__(self,
+            #filename, frames, row, width, height, colorkey = None
+            os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
+            4,
+            1,
+            50,
+            50,
+            (255, 255, 255))
+        print(id(self.animations))
         self.name = "Baddie"
         self.bullet_group = view.baddie_bullet_group
         if weapon:
             weapon.bullet_velocity *= -1
             self.on_weapon_update (weapon)
-        self.droppable_sprite_sheet = Spritesheet(os.path.join('assets', 'art', 'droppable_sprite_sheet.png'))
-        animations = self.droppable_sprite_sheet.images_at([
-                    (0,0,50,50),
-                    (50,0,50,50),
-                    (100,0,50,50),
-                    (150,0,50,50)],
-                    (255, 255, 255))
-        self.animations = animations
         self.image = self.animations[self.animation_counter]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)

@@ -1,9 +1,10 @@
-import pygame
+import pygame, os
 from weapon.weapon import *
 from ship.shared import *
 from ship.gameobject import *
+from assets.art.spritesheet import *
 
-class Hero(Ship):
+class Hero(Ship, Spritesheet):
     weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
     next_level = 100
     level_interval = 2
@@ -15,13 +16,32 @@ class Hero(Ship):
     name = "Hero"
     color = None
 
+    animation_counter = 0
+    animation_time_ms = 200
+    animation_current_ms = 0
+
     def __init__(self, view, x, y, weapon):
         super().__init__(view)
         if view:
             #ship_selection_screen does not have a view
             self.bullet_group = view.hero_bullet_group
 
+        Spritesheet.__init__(self,
+            #filename, frames, row, width, height, colorkey = None
+            os.path.join('assets', 'art', 'hero_sprite_sheet.png'),
+            4,
+            self.animation_row,
+            100,
+            50,
+            (0, 0, 0))
+        self.image = self.animations[self.animation_counter]
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.x = x
+        self.y = y
+
         self.on_weapon_update (weapon)
+        '''
         self.image = pygame.Surface([100, 50])
         self.image.set_colorkey([1, 1, 1])
         self.image.fill([1, 1, 1])
@@ -34,6 +54,7 @@ class Hero(Ship):
             self.color,
             (0,0,100,50),
             1)
+        '''
         self.health = self.health_max
         self.level = 1
 
@@ -67,6 +88,14 @@ class Hero(Ship):
             self.on_level_up()
         if self.time_since_kill > 3000:
             self.kill_streak = 0
+        self.animation_current_ms += delta
+        if self.animation_time_ms <= self.animation_current_ms:
+            if self.animation_counter < 3:
+                self.animation_counter += 1
+            else:
+                self.animation_counter = 0
+            self.image = self.animations[self.animation_counter]
+            self.animation_current_ms = 0
 
     def on_death(self):
         print("YOU DIED")
@@ -78,6 +107,8 @@ class AverageShip(Hero):
     health_max = 100
     health_multiplier = 1.05
     damage_multiplier = 1.05
+    animation_row = 1
+    animations = []
 
 class Tank(Hero):
     color = (0, 255, 0)
@@ -85,6 +116,8 @@ class Tank(Hero):
     health_max = 150
     health_multiplier = 1.08
     damage_multiplier = 1.02
+    animation_row = 4
+    animations = []
 
 class GlassCannon(Hero):
     color = (255, 0, 0)
@@ -92,3 +125,5 @@ class GlassCannon(Hero):
     health_max = 80
     health_multiplier = 1.02
     damage_multiplier = 1.08
+    animation_row = 7
+    animations = []
