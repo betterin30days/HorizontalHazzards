@@ -37,8 +37,9 @@ class Ship(GameObject):
         self.on_weapon_update (self.weapons[index-1])
 
     def shoot_bullet(self):
-        bullet = self.weapon.bullet_create(self.x, self.y)
-        bullet.add(self.view.all_sprites_group, self.view.hero_bullet_group)
+        if self.is_alive():
+            bullet = self.weapon.bullet_create(self.x, self.y)
+            bullet.add(self.view.all_sprites_group, self.view.hero_bullet_group)
 
     def on_level_up(self):
         self.next_level *= self.level_interval

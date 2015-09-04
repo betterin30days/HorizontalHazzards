@@ -8,8 +8,10 @@ class Baddie(GameObject):
     waypoint = []
     waypoint_index = 0
     damage_collision = 10
+    health_multiplier = 1.3
+    damage_multiplier = 1.2
 
-    def __init__(self, view, x, y, waypoint = None):
+    def __init__(self, view, x, y, waypoint = None, level = None):
         super().__init__(view)
         pygame.sprite.Sprite.__init__(self)
         self.name = "Baddie"
@@ -26,12 +28,19 @@ class Baddie(GameObject):
             (25,25),
             25,
             0)
-        self.health_max = 100
+        if level:
+            self.level = level
+        else:
+            self.level = self.view.ship.level
+
+        self.health_max = 100 * pow(self.health_multiplier, self.level)
+        self.damage_collision = 10 * pow(self.damage_multiplier, self.level)
+        print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.damage_collision))
         self.health = self.health_max
         self.velocity_max = 5
         self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
-        self.experience_total = 10
+        self.experience_total = 75
 
     def on_death(self):
         drops = Droppable_Factory.drop_generate(self.name)
@@ -77,7 +86,7 @@ class Baddie(GameObject):
         super().update(delta)
 
 class TestDummy(Baddie):
-    view = None
+
     def __init__(self, view):
         super().__init__(view, 900, 360)
         self.velocity_update(None, None)
@@ -86,6 +95,3 @@ class TestDummy(Baddie):
         self.test_dummy = TestDummy(self.view)
         self.test_dummy.add(self.view.all_sprites_group, self.view.baddie_group)
         self.kill()
-
-    def update(self, delta):
-        super().update(delta)
