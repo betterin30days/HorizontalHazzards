@@ -24,14 +24,13 @@ class Baddie(Ship):
         if weapon:
             weapon.bullet_velocity *= -1
             self.on_weapon_update (weapon)
-        self.droppable_sprite_sheet = Spritesheet(os.path.join('assets', 'art', 'droppable_sprite_sheet.png'))
-        animations = self.droppable_sprite_sheet.images_at([
-                    (0,0,50,50),
-                    (50,0,50,50),
-                    (100,0,50,50),
-                    (150,0,50,50)],
-                    (255, 255, 255))
-        self.animations = animations
+        self.droppable_sprite_sheet = Spritesheet(
+            os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
+            4,
+            2,
+            50,
+            50)
+        self.animations = self.droppable_sprite_sheet.animations[0]
         self.image = self.animations[self.animation_counter]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
