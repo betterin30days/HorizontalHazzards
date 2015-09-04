@@ -22,7 +22,9 @@ class Game_Screen(Screen):
     all_drops_group = None
     hero_bullet_group = None
     baddie_bullet_group = None
+    all_weapons = []
     is_paused = False
+    is_space_down = False
     spawners = [] #later there may be a level that holds all of the spawners for each wave
 
     def __init__(self, screen_manager, ship_class = None):
@@ -37,6 +39,7 @@ class Game_Screen(Screen):
         self.baddie_bullet_group = pygame.sprite.Group()
         self.baddie_group = pygame.sprite.Group()
         self.all_drops_group = pygame.sprite.Group()
+        self.all_weapons_group = pygame.sprite.Group()
         if not ship_class:
             ship_class = AverageShip
         self.ship = ship_class(self, 100, 360, BasicPew())
@@ -76,7 +79,7 @@ class Game_Screen(Screen):
                 if event.key == K_p:
                     self.is_paused = not self.is_paused
                 elif event.key == K_SPACE:
-                    self.ship.shoot_bullet()
+                    self.is_space_down = True
                 elif event.key == K_1:
                     self.ship.weapon_index_update(1)
                 elif event.key == K_2:
@@ -104,6 +107,8 @@ class Game_Screen(Screen):
                     self.move_x.remove(Shared.LEFT)
                 elif event.key == K_d:
                     self.move_x.remove(Shared.RIGHT)
+                elif event.key == K_SPACE:
+                    self.is_space_down = False
 
             elif event.type == QUIT:
                 self.quit()
@@ -121,7 +126,10 @@ class Game_Screen(Screen):
             dx = self.move_x[len(self.move_x)-1]
         if self.move_y:
             dy = self.move_y[len(self.move_y)-1]
+        
         self.ship.velocity_update(dx, dy)
+        if self.is_space_down:
+            self.ship.shoot_bullet()
 
         for spawner in self.spawners:
             if spawner.is_completed():
@@ -130,6 +138,9 @@ class Game_Screen(Screen):
         
         for sprite in self.all_sprites_group:
             sprite.update(delta)
+
+        for weapon in self.all_weapons:
+            weapon.update(delta)
 
         #Baddies being shot by Hero bullets
         collision = pygame.sprite.groupcollide(

@@ -17,6 +17,11 @@ class Hero(Ship):
 
     def __init__(self, view, x, y, weapon):
         super().__init__(view)
+        if view:
+            #ship_selection_screen does not have a view
+            for weapon in self.weapons:
+                self.view.all_weapons.append(weapon)
+
         self.on_weapon_update (weapon)
         self.image = pygame.Surface([100, 50])
         self.image.set_colorkey([1, 1, 1])
@@ -39,7 +44,8 @@ class Hero(Ship):
     def shoot_bullet(self):
         if self.is_alive():
             bullet = self.weapon.bullet_create(self.x, self.y)
-            bullet.add(self.view.all_sprites_group, self.view.hero_bullet_group)
+            if bullet:
+                bullet.add(self.view.all_sprites_group, self.view.hero_bullet_group)
 
     def on_level_up(self):
         self.next_level *= self.level_interval

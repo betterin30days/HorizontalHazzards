@@ -7,12 +7,15 @@ class Weapon(GameObject):
     bullet_color = (0,255,0)
     bullet_damage = 1
     owner = None
+    shots_per_second = 4
+    fired_last_bullet_time = 0
+    has_fired = False
 
     def __init__(self):
         pass
 
     def update(self, delta):
-        pass
+        self.fired_last_bullet_time += delta
 
     def on_pick_up(self, owner):
         self.owner = owner
@@ -21,12 +24,15 @@ class Weapon(GameObject):
         self.owner = None
 
     def bullet_create(self, x, y):
-        return Bullet(x, y,
-                self.owner,
-                self.bullet_color,
-                self.bullet_radius,
-                self.bullet_velocity,
-                self.bullet_damage)
+        if (not self.has_fired or self.fired_last_bullet_time >= (1.0 / self.shots_per_second * 1000)):
+            self.fired_last_bullet_time = 0
+            self.has_fired = True
+            return Bullet(x, y,
+                    self.owner,
+                    self.bullet_color,
+                    self.bullet_radius,
+                    self.bullet_velocity,
+                    self.bullet_damage)
 
 class Bullet(GameObject):
     velocity = None
@@ -70,6 +76,7 @@ class Bullet(GameObject):
 class BasicPew(Weapon):
     def __init__(self):
         self.bullet_color = (0,255,0)
+        self.shots_per_second = 25
 
 class BasicPew2(Weapon):
     def __init__(self):
@@ -77,6 +84,7 @@ class BasicPew2(Weapon):
         self.bullet_velocity = 10
         self.bullet_color = (255,20,147)
         self.bullet_damage = 5
+        self.shots_per_second = 2
 
 class BasicPew3(Weapon):
     def __init__(self):
@@ -84,6 +92,7 @@ class BasicPew3(Weapon):
         self.bullet_velocity = 10
         self.bullet_color = (50,205,50)
         self.bullet_damage = 10
+        self.shots_per_second = 3
 
 class BasicPew4(Weapon):
     def __init__(self):
@@ -91,6 +100,7 @@ class BasicPew4(Weapon):
         self.bullet_velocity = 15
         self.bullet_color = (255,69,0)
         self.bullet_damage = 14
+        self.shots_per_second = 8
 
 class BasicPew5(Weapon):
     def __init__(self):
