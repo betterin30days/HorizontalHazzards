@@ -5,7 +5,7 @@ from ship.gameobject import *
 from weapon.droppable import *
 from assets.art.spritesheet import *
 
-class Baddie(Ship):
+class Baddie(Ship, Spritesheet):
     waypoint = []
     waypoint_index = 0
     damage_collision = 10
@@ -19,18 +19,19 @@ class Baddie(Ship):
     def __init__(self, view, x, y, waypoint = None, level = None, weapon = None):
         Ship.__init__(self, view)
         pygame.sprite.Sprite.__init__(self)
-        self.name = "Baddie"
-        self.bullet_group = view.baddie_bullet_group
-        if weapon:
-            weapon.bullet_velocity *= -1
-            self.on_weapon_update (weapon)
-        self.droppable_sprite_sheet = Spritesheet(
+        Spritesheet.__init__(self,
+            #filename, frames, rows, width, height
             os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
             4,
             2,
             50,
             50)
-        self.animations = self.droppable_sprite_sheet.animations[0]
+        self.name = "Baddie"
+        self.bullet_group = view.baddie_bullet_group
+        if weapon:
+            weapon.bullet_velocity *= -1
+            self.on_weapon_update (weapon)
+        self.animations = self.animations[0]
         self.image = self.animations[self.animation_counter]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
