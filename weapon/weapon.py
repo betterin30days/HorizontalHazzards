@@ -1,5 +1,6 @@
 import pygame
 from ship.gameobject import *
+from .status_effect import *
 
 class Weapon_Type(object):
     MELEE = 1
@@ -28,6 +29,7 @@ class Weapon(GameObject):
     bullet_radius = 15
     bullet_color = (0,255,0)
     bullet_damage = 1
+    status_effects = []
 
     def __init__(self):
         pass
@@ -50,7 +52,8 @@ class Weapon(GameObject):
                     self.bullet_color,
                     self.bullet_radius,
                     self.bullet_velocity,
-                    self.bullet_damage)
+                    self.bullet_damage,
+                    self.status_effects)
 
 class Bullet(GameObject):
     velocity = None
@@ -58,10 +61,12 @@ class Bullet(GameObject):
     radius = None
     damage = None
     owner = None
+    status_effects = []
 
-    def __init__(self, x, y, owner, color, radius, velocity, damage):
+    def __init__(self, x, y, owner, color, radius, velocity, damage, status_effects = []):
         pygame.sprite.Sprite.__init__(self)
         self.owner = owner
+        self.status_effects = status_effects
         self.image = pygame.Surface([radius*2,radius*2])
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
@@ -90,6 +95,8 @@ class Bullet(GameObject):
         damage_taken = target.on_hit(self.damage)
         if damage_taken:
             self.owner.on_damage_dealt(target, damage_taken)
+            for status_effect in self.status_effects:
+                self.owner.on_status_effect(status_effect(self.owner))
 
 class BasicPew(Weapon):
     def __init__(self):
@@ -117,6 +124,7 @@ class BasicPew3(Weapon):
         self.bullet_damage = 10
         self.shots_per_second = 3
         self.weapon_type = Weapon_Type.SPECI
+        self.status_effects = [lambda owner: Damage_Over_Time(owner, 3, 10)]
 
 class BasicPew4(Weapon):
     def __init__(self):
@@ -124,7 +132,7 @@ class BasicPew4(Weapon):
         self.bullet_radius = 5
         self.bullet_velocity = 20
         self.bullet_color = (255,69,0)
-        self.bullet_damage = 14
+        self.bullet_damage = 8
         self.shots_per_second = 2
         self.weapon_type = Weapon_Type.EXPLO
 

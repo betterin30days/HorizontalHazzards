@@ -22,7 +22,6 @@ class Baddie(Ship):
         self.name = "Baddie"
         self.bullet_group = view.baddie_bullet_group
         if weapon:
-            self.view.all_weapons.append(weapon)
             weapon.bullet_velocity *= -1
             self.on_weapon_update (weapon)
         self.droppable_sprite_sheet = Spritesheet(os.path.join('assets', 'art', 'droppable_sprite_sheet.png'))

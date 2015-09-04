@@ -24,6 +24,7 @@ class Game_Screen(Screen):
     all_drops_group = None
     hero_bullet_group = None
     baddie_bullet_group = None
+    status_effects = []
     all_weapons = []
     is_paused = False
     is_space_down = False
@@ -41,7 +42,6 @@ class Game_Screen(Screen):
         self.baddie_bullet_group = pygame.sprite.Group()
         self.baddie_group = pygame.sprite.Group()
         self.all_drops_group = pygame.sprite.Group()
-        self.all_weapons_group = pygame.sprite.Group()
         if not ship_class:
             ship_class = AverageShip
         self.ship = ship_class(self, 100, 360, BasicPew())
@@ -147,6 +147,9 @@ class Game_Screen(Screen):
 
         for weapon in self.all_weapons:
             weapon.update(delta)
+
+        for status_effect in self.status_effects:
+            status_effect.update(delta)
 
         #Baddies being shot by Hero bullets
         collision = pygame.sprite.groupcollide(

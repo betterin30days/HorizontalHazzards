@@ -27,6 +27,9 @@ class Ship(GameObject):
     weapon = None
     damage_dealt_total = 0
     bullet_group = None
+    bullet_shot_count = 0
+    bullet_hitt_count = 0
+    status_effects = []
 
     def __init__(self, view):
         super().__init__()
@@ -53,6 +56,7 @@ class Ship(GameObject):
 
     def on_damage_dealt(self, target, damage):
         self.damage_dealt_total += damage
+        self.bullet_hitt_count += 1
         print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
         if not target.is_alive():
             self.on_killed(target)
@@ -61,11 +65,28 @@ class Ship(GameObject):
         if self.is_alive():
             bullet = self.weapon.bullet_create(self.x, self.y)
             if bullet:
+                self.bullet_shot_count += 1
                 bullet.add(self.view.all_sprites_group, self.bullet_group)
 
+    def on_status_effect(self, status_effect):
+        if not status_effect.is_stacking:
+            if status_effect in self.status_effects:
+                self.status_effects.remove(status_effect)
+            if status_effect in self.view.status_effects:
+                self.view.status_effects.remove(status_effect)
+        
+        self.status_effects.append(status_effect)
+        self.view.status_effects.append(status_effect)
+        status_effect.on_pick_up(self)
+        status_effect.on_use()
+
     def on_weapon_update(self, weapon):
+        if self.weapon and self.view:
+            self.view.all_weapons.remove(self.weapon)
         self.weapon = weapon
         self.weapon.on_pick_up(self)
+        if self.weapon and self.view:
+            self.view.all_weapons.append(self.weapon)
 
     def on_droppable_pickup(self, droppable):
         droppable.on_pickup(self)

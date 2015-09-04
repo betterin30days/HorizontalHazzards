@@ -19,9 +19,6 @@ class Hero(Ship):
         super().__init__(view)
         if view:
             #ship_selection_screen does not have a view
-            for weapon in self.weapons:
-                self.view.all_weapons.append(weapon)
-
             self.bullet_group = view.hero_bullet_group
 
         self.on_weapon_update (weapon)
