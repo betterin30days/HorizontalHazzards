@@ -8,7 +8,6 @@ class GameObject(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
 class Ship(GameObject):
-    view = None
     name = ""
     health = 0
     health_max = 0
@@ -31,9 +30,10 @@ class Ship(GameObject):
     bullet_hitt_count = 0
     status_effects = []
 
-    def __init__(self, view):
+    def __init__(self, on_weapon_update_callback, on_status_effect_callback):
         super().__init__()
-        self.view = view
+        self.on_weapon_update_callback = on_weapon_update_callback
+        self.on_status_effect_callback = on_status_effect_callback
 
     def update(self, delta):
         self.move()
@@ -57,7 +57,7 @@ class Ship(GameObject):
     def on_damage_dealt(self, target, damage):
         self.damage_dealt_total += damage
         self.bullet_hitt_count += 1
-        print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
+        #print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
         if not target.is_alive():
             self.on_killed(target)
 
@@ -66,27 +66,25 @@ class Ship(GameObject):
             bullet = self.weapon.bullet_create(self.x, self.y)
             if bullet:
                 self.bullet_shot_count += 1
-                bullet.add(self.view.all_sprites_group, self.bullet_group)
+                return bullet
 
     def on_status_effect(self, status_effect):
         if not status_effect.is_stacking:
             if status_effect in self.status_effects:
                 self.status_effects.remove(status_effect)
-            if status_effect in self.view.status_effects:
-                self.view.status_effects.remove(status_effect)
-        
+
         self.status_effects.append(status_effect)
-        self.view.status_effects.append(status_effect)
         status_effect.on_pick_up(self)
         status_effect.on_use()
+        if self.on_status_effect_callback:
+            self.on_status_effect_callback(self, status_effect)
 
     def on_weapon_update(self, weapon):
-        if self.weapon and self.view:
-            self.view.all_weapons.remove(self.weapon)
+        before = self.weapon
         self.weapon = weapon
         self.weapon.on_pick_up(self)
-        if self.weapon and self.view:
-            self.view.all_weapons.append(self.weapon)
+        if self.on_weapon_update_callback:
+            self.on_weapon_update_callback(self, before, self.weapon)
 
     def on_droppable_pickup(self, droppable):
         droppable.on_pickup(self)
@@ -95,7 +93,7 @@ class Ship(GameObject):
     def currency_update(self, amount):
         before = self.currency
         self.currency += amount
-        print ("Currency updated to from {} to {}".format(before, self.currency))
+        #print ("Currency updated to from {} to {}".format(before, self.currency))
 
     def health_update(self, amount):
         before = self.health
@@ -103,7 +101,7 @@ class Ship(GameObject):
             self.health = self.health_max
         else:
             self.health += amount
-        print ("Health updated to from {} to {}".format(before, self.health))
+        #print ("Health updated to from {} to {}".format(before, self.health))
 
     def on_killed(self, target):
         pass

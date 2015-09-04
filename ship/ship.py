@@ -20,12 +20,8 @@ class Hero(Ship, Spritesheet):
     animation_time_ms = 200
     animation_current_ms = 0
 
-    def __init__(self, view, x, y, weapon):
-        super().__init__(view)
-        if view:
-            #ship_selection_screen does not have a view
-            self.bullet_group = view.hero_bullet_group
-
+    def __init__(self, on_weapon_update_callback, on_status_effect_callback, x, y, weapon):
+        super().__init__(on_weapon_update_callback, on_status_effect_callback)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'hero_sprite_sheet.png'),
@@ -33,28 +29,13 @@ class Hero(Ship, Spritesheet):
             self.animation_row,
             100,
             50,
-            (0, 0, 0))
+            (255, 255, 255))
         self.image = self.animations[self.animation_counter]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.x = x
         self.y = y
-
         self.on_weapon_update (weapon)
-        '''
-        self.image = pygame.Surface([100, 50])
-        self.image.set_colorkey([1, 1, 1])
-        self.image.fill([1, 1, 1])
-        self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
-        self.rect.center = (self.x, self.y)
-        pygame.draw.rect(
-            self.image,
-            self.color,
-            (0,0,100,50),
-            1)
-        '''
         self.health = self.health_max
         self.level = 1
 
@@ -73,13 +54,13 @@ class Hero(Ship, Spritesheet):
         self.experience_total += target.experience_total
         self.kills_total += 1
         self.kill_streak += 1
-        self.time_since_kill = 0
-        print ("xp: {}; killed {}; total kills: {}; kill streak: {}; time since kill: {}".format(
+        print (" Hero xp: {}; killed {}; total kills: {}; streak: {}; time since kill: {}".format(
             self.experience_total,
             target.name,
             self.kills_total,
             self.kill_streak,
             self.time_since_kill))
+        self.time_since_kill = 0
 
     def update(self, delta):
         super().update(delta)

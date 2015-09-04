@@ -21,14 +21,18 @@ class Spawner(object):
         #Should we be creating entities
     entity_class = None
         #object to be created
+    baddie_add_callback = None
+        #Call when baddie created
 
     def __init__(self,
             view,
+            baddie_add_callback,
             time_start,
             time_delay,
             spawn_count_total,
             entity_class):
         self.view = view
+        self.baddie_add_callback = baddie_add_callback
         self.time_start = time_start
         self.time_delay = time_delay
         self.spawn_count_total = spawn_count_total
@@ -50,7 +54,7 @@ class Spawner(object):
                 self.time_since_spawn += delta
             if self.time_since_spawn is None or self.time_since_spawn > self.time_delay * 1000:
                 baddie = self.entity_class()
-                baddie.add(self.view.all_sprites_group, self.view.baddie_group)
+                self.baddie_add_callback(baddie)
                 self.time_since_spawn = 0
                 self.spawn_count_current += 1
 

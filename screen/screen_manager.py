@@ -5,9 +5,10 @@ class Screen_Manager(object):
     screens = []
         #Stack of screens
 
-    def __init__(self, screen_start):
-        assert(isinstance(screen_start, Screen))
-        self.screens.insert(0, screen_start)
+    def __init__(self, screen_start = None):
+        if screen_start:
+            assert(isinstance(screen_start, Screen))
+            self.screens.insert(0, screen_start)
         self.clock = pygame.time.Clock()
 
     def screen_add(self, screen):

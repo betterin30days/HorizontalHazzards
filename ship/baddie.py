@@ -11,6 +11,7 @@ class Baddie(Ship, Spritesheet):
     damage_collision = 10
     health_multiplier = 1.3
     damage_multiplier = 1.2
+    bullet_add_callback = None
     #
     animation_counter = 0
     animation_time_ms = 200
@@ -18,8 +19,8 @@ class Baddie(Ship, Spritesheet):
     animations = []
     #TODO serious problem with sharing spritesheets
 
-    def __init__(self, view, x, y, waypoint = None, level = None, weapon = None):
-        Ship.__init__(self, view)
+    def __init__(self, on_weapon_update_callback, on_status_effect_callback, bullet_add_callback, on_death_callback, x, y, waypoint = None, level = 1, weapon = None):
+        Ship.__init__(self, on_weapon_update_callback, on_status_effect_callback)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
@@ -28,9 +29,9 @@ class Baddie(Ship, Spritesheet):
             50,
             50,
             (255, 255, 255))
-        print(id(self.animations))
         self.name = "Baddie"
-        self.bullet_group = view.baddie_bullet_group
+        self.bullet_add_callback = bullet_add_callback
+        self.on_death_callback = on_death_callback
         if weapon:
             weapon.bullet_velocity *= -1
             self.on_weapon_update (weapon)
@@ -39,14 +40,12 @@ class Baddie(Ship, Spritesheet):
         self.rect.center = (x, y)
         self.x = x
         self.y = y
-        if level:
-            self.level = level
-        else:
-            self.level = self.view.ship.level
+        self.level = level
+        #TODO: update spawner to use lambda parameter for level
 
         self.health_max = 100 * pow(self.health_multiplier, self.level)
         self.damage_collision = 10 * pow(self.damage_multiplier, self.level)
-        print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.damage_collision))
+        #print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.damage_collision))
         self.health = self.health_max
         self.velocity_max = 2
         self.waypoint = waypoint
@@ -55,13 +54,7 @@ class Baddie(Ship, Spritesheet):
         self.weapon = weapon
 
     def on_death(self):
-        drops = Droppable_Factory.drop_generate(self.name)
-        x = self.x
-        for drop in drops:
-            drop.draw(x, self.y)
-            x += 10
-        self.view.all_drops_group.add(drops)
-        self.view.all_sprites_group.add(drops)
+        self.on_death_callback(self)
         self.kill()
 
     def on_collision(self, target):
@@ -76,7 +69,10 @@ class Baddie(Ship, Spritesheet):
     def update(self, delta):
         super().update(delta)
         if self.weapon:
-            self.shoot_bullet()
+            bullet = self.shoot_bullet()
+            if bullet and self.bullet_add_callback:
+                self.bullet_add_callback(bullet)
+
         self.animation_current_ms += delta
         if self.animation_time_ms <= self.animation_current_ms:
             if self.animation_counter < 3:
@@ -107,14 +103,3 @@ class Baddie(Ship, Spritesheet):
             self.velocity_update(x, y)
         if self.x < 0:
             self.on_flee()
-
-class TestDummy(Baddie):
-
-    def __init__(self, view):
-        super().__init__(view, 900, 360)
-        self.velocity_update(None, None)
-  
-    def on_death(self):
-        self.test_dummy = TestDummy(self.view)
-        self.test_dummy.add(self.view.all_sprites_group, self.view.baddie_group)
-        self.kill()
