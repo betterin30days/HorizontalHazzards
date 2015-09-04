@@ -24,8 +24,9 @@ class Droppable(pygame.sprite.Sprite):
     def update(self, delta):
         pass
 
-class GoldDrop(Droppable):
+class ConsumableDrop(Droppable):
     count = 0
+    color = None
 
     def __init__(self, count):
         self.count = count
@@ -34,7 +35,6 @@ class GoldDrop(Droppable):
         self.x = x
         self.y = y
         self.radius = 3
-        self.color = (255, 215, 0)
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([self.radius*2,self.radius*2])
         self.image.set_colorkey([1,1,1])
@@ -47,33 +47,15 @@ class GoldDrop(Droppable):
             (self.radius, self.radius),
             self.radius,
             0)
+
+class GoldDrop(ConsumableDrop):
+    color = (255, 215, 0)
 
     def on_use(self):
         self.owner.currency_update(self.count)
 
-class HealthDrop(Droppable):
-    count = 0
-
-    def __init__(self, count):
-        self.count = count
-
-    def draw(self, x, y):
-        self.x = x
-        self.y = y
-        self.radius = 3
-        self.color = (128, 0, 0)
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([self.radius*2,self.radius*2])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        pygame.draw.circle(
-            self.image,
-            self.color,
-            (self.radius, self.radius),
-            self.radius,
-            0)
+class HealthDrop(ConsumableDrop):
+    color = (128, 0, 0)
 
     def on_use(self):
         self.owner.health_update(self.count)
