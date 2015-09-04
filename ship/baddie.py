@@ -15,10 +15,11 @@ class Baddie(Ship, Spritesheet):
     animation_counter = 0
     animation_time_ms = 200
     animation_current_ms = 0
+    animations = []
+    #TODO serious problem with sharing spritesheets
 
     def __init__(self, view, x, y, waypoint = None, level = None, weapon = None):
         Ship.__init__(self, view)
-        pygame.sprite.Sprite.__init__(self)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
@@ -27,6 +28,7 @@ class Baddie(Ship, Spritesheet):
             50,
             50,
             (255, 255, 255))
+        print(id(self.animations))
         self.name = "Baddie"
         self.bullet_group = view.baddie_bullet_group
         if weapon:

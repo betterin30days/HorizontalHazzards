@@ -1,7 +1,8 @@
-import pygame
+import pygame, os
 from weapon.weapon import *
 from ship.shared import *
 from ship.gameobject import *
+from assets.art.spritesheet import *
 
 class Hero(Ship):
     weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
@@ -14,6 +15,10 @@ class Hero(Ship):
     kill_streak = 0
     name = "Hero"
     color = None
+
+    animation_counter = 0
+    animation_time_ms = 200
+    animation_current_ms = 0
 
     def __init__(self, view, x, y, weapon):
         super().__init__(view)
@@ -72,12 +77,39 @@ class Hero(Ship):
         print("YOU DIED")
         self.kill()
 
-class AverageShip(Hero):
+class AverageShip(Hero, Spritesheet):
     color = (0, 0, 255)
     velocity_max = 5
     health_max = 100
     health_multiplier = 1.05
     damage_multiplier = 1.05
+
+    def __init__(self, view, x, y, weapon):
+        Hero.__init__(self, view, x, y, weapon)
+        Spritesheet.__init__(self,
+            #filename, frames, row, width, height, colorkey = None
+            os.path.join('assets', 'art', 'hero_sprite_sheet.png'),
+            4,
+            1,
+            100,
+            50,
+            (0, 0, 0))
+        self.image = self.animations[self.animation_counter]
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.x = x
+        self.y = y
+
+    def update(self, delta):
+        Hero.update(self, delta)
+        self.animation_current_ms += delta
+        if self.animation_time_ms <= self.animation_current_ms:
+            if self.animation_counter < 3:
+                self.animation_counter += 1
+            else:
+                self.animation_counter = 0
+            self.image = self.animations[self.animation_counter]
+            self.animation_current_ms = 0
 
 class Tank(Hero):
     color = (0, 255, 0)
