@@ -1,8 +1,9 @@
-import pygame
+import pygame, os
 from weapon import *
 from ship.shared import *
 from ship.gameobject import *
 from weapon.droppable import *
+from assets.art.spritesheet import *
 
 class Baddie(Ship):
     waypoint = []
@@ -10,24 +11,28 @@ class Baddie(Ship):
     damage_collision = 10
     health_multiplier = 1.3
     damage_multiplier = 1.2
+    #
+    animation_counter = 0
+    animation_time_ms = 200
+    animation_current_ms = 0
 
     def __init__(self, view, x, y, waypoint = None, level = None):
-        super().__init__(view)
+        Ship.__init__(self, view)
         pygame.sprite.Sprite.__init__(self)
         self.name = "Baddie"
-        self.image = pygame.Surface([50,50])
-        self.image.set_colorkey([1,1,1])
-        self.image.fill([1,1,1])
+        self.droppable_sprite_sheet = Spritesheet(os.path.join('assets', 'art', 'droppable_sprite_sheet.png'))
+        animations = self.droppable_sprite_sheet.images_at([
+                    (0,0,50,50),
+                    (50,0,50,50),
+                    (100,0,50,50),
+                    (150,0,50,50)],
+                    (255, 255, 255))
+        self.animations = animations
+        self.image = self.animations[self.animation_counter]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.x = x
         self.y = y
-        pygame.draw.circle(
-            self.image,
-            (255,0,0),
-            (25,25),
-            25,
-            0)
         if level:
             self.level = level
         else:
@@ -62,6 +67,16 @@ class Baddie(Ship):
         self.kill()
 
     def update(self, delta):
+        super().update(delta)
+        self.animation_current_ms += delta
+        if self.animation_time_ms <= self.animation_current_ms:
+            if self.animation_counter < 3:
+                self.animation_counter += 1
+            else:
+                self.animation_counter = 0
+            self.image = self.animations[self.animation_counter]
+            self.animation_current_ms = 0
+
         if self.waypoint and len(self.waypoint) > self.waypoint_index:
             destination = self.waypoint[self.waypoint_index]
             dx = destination[0] - self.x
@@ -83,7 +98,6 @@ class Baddie(Ship):
             self.velocity_update(x, y)
         if self.x < 0:
             self.on_flee()
-        super().update(delta)
 
 class TestDummy(Baddie):
 
