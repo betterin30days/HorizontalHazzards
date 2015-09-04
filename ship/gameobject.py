@@ -26,6 +26,7 @@ class Ship(GameObject):
     level = 0
     weapon = None
     damage_dealt_total = 0
+    bullet_group = None
 
     def __init__(self, view):
         super().__init__()
@@ -55,6 +56,12 @@ class Ship(GameObject):
         print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
         if not target.is_alive():
             self.on_killed(target)
+
+    def shoot_bullet(self):
+        if self.is_alive():
+            bullet = self.weapon.bullet_create(self.x, self.y)
+            if bullet:
+                bullet.add(self.view.all_sprites_group, self.bullet_group)
 
     def on_weapon_update(self, weapon):
         self.weapon = weapon

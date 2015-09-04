@@ -16,10 +16,15 @@ class Baddie(Ship):
     animation_time_ms = 200
     animation_current_ms = 0
 
-    def __init__(self, view, x, y, waypoint = None, level = None):
+    def __init__(self, view, x, y, waypoint = None, level = None, weapon = None):
         Ship.__init__(self, view)
         pygame.sprite.Sprite.__init__(self)
         self.name = "Baddie"
+        self.bullet_group = view.baddie_bullet_group
+        if weapon:
+            self.view.all_weapons.append(weapon)
+            weapon.bullet_velocity *= -1
+            self.on_weapon_update (weapon)
         self.droppable_sprite_sheet = Spritesheet(os.path.join('assets', 'art', 'droppable_sprite_sheet.png'))
         animations = self.droppable_sprite_sheet.images_at([
                     (0,0,50,50),
@@ -42,10 +47,11 @@ class Baddie(Ship):
         self.damage_collision = 10 * pow(self.damage_multiplier, self.level)
         print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.damage_collision))
         self.health = self.health_max
-        self.velocity_max = 5
+        self.velocity_max = 2
         self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
         self.experience_total = 75
+        self.weapon = weapon
 
     def on_death(self):
         drops = Droppable_Factory.drop_generate(self.name)
@@ -68,6 +74,8 @@ class Baddie(Ship):
 
     def update(self, delta):
         super().update(delta)
+        if self.weapon:
+            self.shoot_bullet()
         self.animation_current_ms += delta
         if self.animation_time_ms <= self.animation_current_ms:
             if self.animation_counter < 3:

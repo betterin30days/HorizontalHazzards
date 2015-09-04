@@ -7,10 +7,12 @@ from ship.shared import *
 from ship.ship import *
 from ship.baddie import *
 from ship.spawner import *
+from .heads_up_display import *
 
 class Game_Screen(Screen):
     screen = None
     background = None
+    heads_up_display = None
     mouse_x, mouse_y = None, None
     ship = None
     test_dummy = None
@@ -44,6 +46,8 @@ class Game_Screen(Screen):
             ship_class = AverageShip
         self.ship = ship_class(self, 100, 360, BasicPew())
         self.ship.add(self.all_sprites_group, self.ship_group)
+        self.heads_up_display = HeadsUpDisplay(self.ship)
+
         self.test_dummy = TestDummy(self)
         self.test_dummy.add(self.all_sprites_group, self.baddie_group)
 
@@ -54,13 +58,13 @@ class Game_Screen(Screen):
                 1.0,
                 3.0,
                 5,
-                lambda: Baddie(self, 900, 500, test_waypoint)),
+                lambda: Baddie(self, 900, 500, test_waypoint, weapon=BasicPew4())),
             Spawner(
                 self,
                 1.0,
                 3.0,
                 5,
-                lambda: Baddie(self, 900, 200))]
+                lambda: Baddie(self, 900, 200, weapon=BasicPew4()))]
 
     def handle_events(self):
         """Translate user input to model actions"""
@@ -131,6 +135,8 @@ class Game_Screen(Screen):
         if self.is_space_down:
             self.ship.shoot_bullet()
 
+        self.heads_up_display.update(delta)
+
         for spawner in self.spawners:
             if spawner.is_completed():
                 self.spawners.remove(spawner)
@@ -151,6 +157,17 @@ class Game_Screen(Screen):
         for bullet, enemys in collision.items():
             for enemy in enemys:
                 bullet.on_collision(enemy)
+
+        #Hero being shot by Baddie bullets
+        collision = pygame.sprite.groupcollide(
+            self.baddie_bullet_group,
+            self.ship_group,
+            True,
+            False)
+        for bullet, heros in collision.items():
+            for hero in heros:
+                bullet.on_collision(hero)
+
 
         #Hero colliding with Baddies
         collision = pygame.sprite.groupcollide(
@@ -176,8 +193,9 @@ class Game_Screen(Screen):
     def display(self):
         """Blit everything to the screen"""
         self.screen.blit(self.background, (0, 0))
-        self.all_sprites_group.draw(self.screen)
         self.ship_group.draw(self.screen)
+        self.all_sprites_group.draw(self.screen)
+        self.heads_up_display.draw(self.screen)
         pygame.display.update()
 
     def quit(self):

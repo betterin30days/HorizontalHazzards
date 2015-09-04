@@ -1,15 +1,33 @@
 import pygame
 from ship.gameobject import *
 
+class Weapon_Type(object):
+    MELEE = 1
+    AUTOM = 2
+    SPECI = 3
+    EXPLO = 4
+    POWER = 5
+
+    def types():
+        return [
+            Weapon_Type.MELEE,
+            Weapon_Type.AUTOM,
+            Weapon_Type.SPECI,
+            Weapon_Type.EXPLO,
+            Weapon_Type.POWER
+        ]
+
 class Weapon(GameObject):
-    bullet_velocity = 5
-    bullet_radius = 15
-    bullet_color = (0,255,0)
-    bullet_damage = 1
+    weapon_type = None
+    name = ""
     owner = None
     shots_per_second = 4
     fired_last_bullet_time = 0
     has_fired = False
+    bullet_velocity = 5
+    bullet_radius = 15
+    bullet_color = (0,255,0)
+    bullet_damage = 1
 
     def __init__(self):
         pass
@@ -65,7 +83,7 @@ class Bullet(GameObject):
     def update(self, delta):
         self.x += self.velocity * delta/100
         self.rect.center = (self.x, self.y)
-        if self.x > 1280:
+        if self.x > 1280 or self.x < 0:
             self.kill()
 
     def on_collision(self, target):
@@ -75,36 +93,46 @@ class Bullet(GameObject):
 
 class BasicPew(Weapon):
     def __init__(self):
+        self.name = "melee"
         self.bullet_color = (0,255,0)
         self.shots_per_second = 25
+        self.weapon_type = Weapon_Type.MELEE
 
 class BasicPew2(Weapon):
     def __init__(self):
+        self.name = "auto"
         self.bullet_radius = 10
         self.bullet_velocity = 10
         self.bullet_color = (255,20,147)
         self.bullet_damage = 5
         self.shots_per_second = 2
+        self.weapon_type = Weapon_Type.AUTOM
 
 class BasicPew3(Weapon):
     def __init__(self):
+        self.name = "special"
         self.bullet_radius = 10
         self.bullet_velocity = 10
         self.bullet_color = (50,205,50)
         self.bullet_damage = 10
         self.shots_per_second = 3
+        self.weapon_type = Weapon_Type.SPECI
 
 class BasicPew4(Weapon):
     def __init__(self):
+        self.name = "explo"
         self.bullet_radius = 5
-        self.bullet_velocity = 15
+        self.bullet_velocity = 20
         self.bullet_color = (255,69,0)
         self.bullet_damage = 14
-        self.shots_per_second = 8
+        self.shots_per_second = 2
+        self.weapon_type = Weapon_Type.EXPLO
 
 class BasicPew5(Weapon):
     def __init__(self):
+        self.name = "power"
         self.bullet_radius = 25
         self.bullet_velocity = 25
         self.bullet_color = (123,104,238)
         self.bullet_damage = 21
+        self.weapon_type = Weapon_Type.POWER

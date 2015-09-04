@@ -22,6 +22,8 @@ class Hero(Ship):
             for weapon in self.weapons:
                 self.view.all_weapons.append(weapon)
 
+            self.bullet_group = view.hero_bullet_group
+
         self.on_weapon_update (weapon)
         self.image = pygame.Surface([100, 50])
         self.image.set_colorkey([1, 1, 1])
@@ -40,12 +42,6 @@ class Hero(Ship):
 
     def weapon_index_update(self, index):
         self.on_weapon_update (self.weapons[index-1])
-
-    def shoot_bullet(self):
-        if self.is_alive():
-            bullet = self.weapon.bullet_create(self.x, self.y)
-            if bullet:
-                bullet.add(self.view.all_sprites_group, self.view.hero_bullet_group)
 
     def on_level_up(self):
         self.next_level *= self.level_interval
