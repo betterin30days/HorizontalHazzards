@@ -3,6 +3,11 @@ from weapon.weapon import *
 from ship.shared import *
 
 class GameObject(pygame.sprite.Sprite):
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+class Ship(GameObject):
     view = None
     name = ""
     health = 0
@@ -23,7 +28,7 @@ class GameObject(pygame.sprite.Sprite):
     damage_dealt_total = 0
 
     def __init__(self, view):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__()
         self.view = view
 
     def update(self, delta):

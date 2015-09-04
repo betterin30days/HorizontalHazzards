@@ -1,6 +1,7 @@
 import pygame
+from ship.gameobject import *
 
-class Weapon(object):
+class Weapon(GameObject):
     bullet_velocity = 5
     bullet_radius = 15
     bullet_color = (0,255,0)
@@ -27,7 +28,7 @@ class Weapon(object):
                 self.bullet_velocity,
                 self.bullet_damage)
 
-class Bullet(pygame.sprite.Sprite):
+class Bullet(GameObject):
     velocity = None
     color = None
     radius = None

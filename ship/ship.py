@@ -1,9 +1,9 @@
 import pygame
-from weapon import *
+from weapon.weapon import *
 from ship.shared import *
 from ship.gameobject import *
 
-class Ship(GameObject):
+class Hero(Ship):
     weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
     next_level = 100
     level_interval = 2
@@ -73,21 +73,21 @@ class Ship(GameObject):
         print("YOU DIED")
         self.kill()
 
-class AverageShip(Ship):
+class AverageShip(Hero):
     color = (0, 0, 255)
     velocity_max = 5
     health_max = 100
     health_multiplier = 1.05
     damage_multiplier = 1.05
 
-class Tank(Ship):
+class Tank(Hero):
     color = (0, 255, 0)
     velocity_max = 4
     health_max = 150
     health_multiplier = 1.08
     damage_multiplier = 1.02
 
-class GlassCannon(Ship):
+class GlassCannon(Hero):
     color = (255, 0, 0)
     velocity_max = 6
     health_max = 80

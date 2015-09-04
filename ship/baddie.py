@@ -4,7 +4,7 @@ from ship.shared import *
 from ship.gameobject import *
 from weapon.droppable import *
 
-class Baddie(GameObject):
+class Baddie(Ship):
     waypoint = []
     waypoint_index = 0
     damage_collision = 10
