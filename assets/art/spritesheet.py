@@ -3,23 +3,20 @@ import pygame
 class Spritesheet(object):
     sheet = None
     frames = None
-    rows = None
+    row = None
     width = 0
     height = 0
     animations = []
-    def __init__(self, filename, frames, rows, width, height):
+    def __init__(self, filename, frames, row, width, height, colorkey = None):
         self.sheet = pygame.image.load(filename).convert()
         self.frames = frames
-        self.rows = rows
+        self.row = row - 1
         self.width = width
         self.height = height
-        for row in range (0,self.rows):
-            sprites = []
-            for frame, image in enumerate(range(0,self.frames)):
-                sprites.append(self.image_at(
-                    (frame*self.width, row*self.height, self.width, self.height),
-                    colorkey = (255, 255, 255)))
-            self.animations.append(sprites)
+        for frame, image in enumerate(range(0,self.frames)):
+            self.animations.append(self.image_at(
+                (frame*self.width, self.row*self.height, self.width, self.height),
+                colorkey))
 
     def image_at(self, rectangle, colorkey = None):
         '''Load image from x, y, x offset, y offset'''

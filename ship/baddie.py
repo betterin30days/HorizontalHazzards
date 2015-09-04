@@ -20,18 +20,18 @@ class Baddie(Ship, Spritesheet):
         Ship.__init__(self, view)
         pygame.sprite.Sprite.__init__(self)
         Spritesheet.__init__(self,
-            #filename, frames, rows, width, height
+            #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
             4,
-            2,
+            1,
             50,
-            50)
+            50,
+            (255, 255, 255))
         self.name = "Baddie"
         self.bullet_group = view.baddie_bullet_group
         if weapon:
             weapon.bullet_velocity *= -1
             self.on_weapon_update (weapon)
-        self.animations = self.animations[0]
         self.image = self.animations[self.animation_counter]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
