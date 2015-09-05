@@ -19,7 +19,16 @@ class Baddie(Ship, Spritesheet):
     animations = []
     #TODO serious problem with sharing spritesheets
 
-    def __init__(self, on_weapon_update_callback, on_status_effect_callback, bullet_add_callback, on_death_callback, x, y, waypoint = None, level = 1, weapon = None):
+    def __init__(self,
+        on_weapon_update_callback,
+        on_status_effect_callback,
+        bullet_add_callback,
+        on_death_callback,
+        x,
+        y,
+        waypoint = None,
+        level = 1,
+        weapon = None):
         Ship.__init__(self, on_weapon_update_callback, on_status_effect_callback)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
@@ -47,7 +56,7 @@ class Baddie(Ship, Spritesheet):
         self.damage_collision = 10 * pow(self.damage_multiplier, self.level)
         #print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.damage_collision))
         self.health = self.health_max
-        self.velocity_max = 2
+        self.velocity_max = 15
         self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
         self.experience_total = 75

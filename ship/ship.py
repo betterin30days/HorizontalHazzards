@@ -84,7 +84,7 @@ class Hero(Ship, Spritesheet):
 
 class AverageShip(Hero):
     color = (0, 0, 255)
-    velocity_max = 5
+    velocity_max = 25
     health_max = 100
     health_multiplier = 1.05
     damage_multiplier = 1.05
@@ -93,7 +93,7 @@ class AverageShip(Hero):
 
 class Tank(Hero):
     color = (0, 255, 0)
-    velocity_max = 4
+    velocity_max = 20
     health_max = 150
     health_multiplier = 1.08
     damage_multiplier = 1.02
@@ -102,7 +102,7 @@ class Tank(Hero):
 
 class GlassCannon(Hero):
     color = (255, 0, 0)
-    velocity_max = 6
+    velocity_max = 30
     health_max = 80
     health_multiplier = 1.02
     damage_multiplier = 1.08

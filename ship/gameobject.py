@@ -36,7 +36,36 @@ class Ship(GameObject):
         self.on_status_effect_callback = on_status_effect_callback
 
     def update(self, delta):
-        self.move()
+        if self.move_y:
+            if self.move_y.y_delta < 0:
+                self.velocity_y += -1
+                self.velocity_y = max(-self.velocity_max, self.velocity_y)
+            elif self.move_y.y_delta > 0:
+                self.velocity_y += 1
+                self.velocity_y = min(self.velocity_max, self.velocity_y)
+        else:
+            if self.velocity_y > 0:
+                self.velocity_y -= 1
+            elif self.velocity_y < 0:
+                self.velocity_y += 1
+
+        if self.move_x:
+            if self.move_x.x_delta < 0:
+                self.velocity_x += -1
+                self.velocity_x = max(-self.velocity_max, self.velocity_x)
+            elif self.move_x.x_delta > 0:
+                self.velocity_x += 1
+                self.velocity_x = min(self.velocity_max, self.velocity_x)
+        else:
+            if self.velocity_x > 0:
+                self.velocity_x -= 1
+            elif self.velocity_x < 0:
+                self.velocity_x += 1
+
+        self.x += self.velocity_x * delta/100
+        self.y += self.velocity_y * delta/100
+        self.rect.center = (self.x, self.y)
+
         if self.health <= 0:
             self.on_death()
 
@@ -108,34 +137,3 @@ class Ship(GameObject):
 
     def on_death(self):
         pass
-
-    def move(self):
-        if self.move_y:
-            if self.move_y.y_delta < 0:
-                self.velocity_y += -1
-                self.velocity_y = max(-self.velocity_max, self.velocity_y)
-            elif self.move_y.y_delta > 0:
-                self.velocity_y += 1
-                self.velocity_y = min(self.velocity_max, self.velocity_y)
-        else:
-            if self.velocity_y > 0:
-                self.velocity_y -= 1
-            elif self.velocity_y < 0:
-                self.velocity_y += 1
-
-        if self.move_x:
-            if self.move_x.x_delta < 0:
-                self.velocity_x += -1
-                self.velocity_x = max(-self.velocity_max, self.velocity_x)
-            elif self.move_x.x_delta > 0:
-                self.velocity_x += 1
-                self.velocity_x = min(self.velocity_max, self.velocity_x)
-        else:
-            if self.velocity_x > 0:
-                self.velocity_x -= 1
-            elif self.velocity_x < 0:
-                self.velocity_x += 1
-
-        self.x += self.velocity_x
-        self.y += self.velocity_y
-        self.rect.center = (self.x, self.y)

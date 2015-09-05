@@ -88,7 +88,7 @@ class Bullet(GameObject):
     def update(self, delta):
         self.x += self.velocity * delta/100
         self.rect.center = (self.x, self.y)
-        if self.x > 1280 or self.x < 0:
+        if self.x > 1280 or self.x < 0 or self.y > 720 or self.y < 0:
             self.kill()
 
     def on_collision(self, target):
@@ -140,7 +140,7 @@ class BasicPew5(Weapon):
     def __init__(self):
         self.name = "power"
         self.bullet_radius = 25
-        self.bullet_velocity = 25
+        self.bullet_velocity = 50
         self.bullet_color = (123,104,238)
         self.bullet_damage = 21
         self.weapon_type = Weapon_Type.POWER
