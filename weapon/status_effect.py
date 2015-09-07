@@ -12,19 +12,21 @@ class Status_Effect(GameObject):
 
     def __init__(self, owner):
         super().__init__()
-        self.owner = owner
+        self.owner = pygame.sprite.GroupSingle()
+        self.owner.add(owner)
+        self.target = pygame.sprite.GroupSingle()
 
     def on_pick_up(self, target):
-        self.target = target
-
-    def on_use(self):
+        self.target.add(target)
         self.is_active = True
 
     def update(self, delta):
         pass
 
     def effect_apply(self):
-        pass
+        if not self.target.sprite or not self.target.sprite.is_alive():
+            self.is_active = False
+            self.kill()
 
 class Damage_Over_Time(Status_Effect):
     time_total_seconds = None
@@ -51,6 +53,8 @@ class Damage_Over_Time(Status_Effect):
                 self.kill()
 
     def effect_apply(self):
-        damage_taken = self.target.on_hit(self.damage_per_second / self.damage_ticks_per_second)
-        if damage_taken:
-            self.owner.on_damage_dealt(self.target, damage_taken)
+        super().effect_apply()
+        if self.alive():
+            damage_taken = self.target.sprite.on_hit(self.damage_per_second / self.damage_ticks_per_second)
+            if damage_taken:
+                self.owner.sprite.on_damage_dealt(self.target.sprite, damage_taken)

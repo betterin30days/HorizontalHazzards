@@ -32,23 +32,24 @@ class Weapon(GameObject):
     status_effects = []
 
     def __init__(self):
-        pass
+        super().__init__()
+        self.owner = pygame.sprite.GroupSingle()
 
     def update(self, delta):
         self.fired_last_bullet_time += delta
 
     def on_pick_up(self, owner):
-        self.owner = owner
+        self.owner.add(owner)
 
-    def on_drop(self):
-        self.owner = None
+    # def on_drop(self):
+    #     self.owner.empty()
 
     def bullet_create(self, x, y):
         if (not self.has_fired or self.fired_last_bullet_time >= (1.0 / self.shots_per_second * 1000)):
             self.fired_last_bullet_time = 0
             self.has_fired = True
             return Bullet(x, y,
-                    self.owner,
+                    self.owner.sprite,
                     self.bullet_color,
                     self.bullet_radius,
                     self.bullet_velocity,
@@ -66,8 +67,9 @@ class Bullet(GameObject):
     status_effects = []
 
     def __init__(self, x, y, owner, color, radius, velocity, damage, status_effects = []):
-        pygame.sprite.Sprite.__init__(self)
-        self.owner = owner
+        super().__init__()
+        self.owner = pygame.sprite.GroupSingle()
+        self.owner.add(owner)
         self.status_effects = status_effects
         self.image = pygame.Surface([radius*2,radius*2])
         self.image.set_colorkey([1,1,1])
@@ -100,53 +102,54 @@ class Bullet(GameObject):
     def on_collision(self, target):
         damage_taken = target.on_hit(self.damage)
         if damage_taken:
-            self.owner.on_damage_dealt(target, damage_taken)
+            if self.owner.sprite:
+                #We do not track baddies dmg, they may be dead when dealing dmg
+                self.owner.sprite.on_damage_dealt(target, damage_taken)
             for status_effect in self.status_effects:
-                self.owner.on_status_effect(status_effect(self.owner))
+                target.on_status_effect(status_effect(self.owner.sprite))
+            if target.health == 0:
+                self.owner.sprite.on_killed(target)
+                target.on_death()
 
 class BasicPew(Weapon):
-    def __init__(self):
-        self.name = "melee"
-        self.bullet_color = (0,255,0)
-        self.shots_per_second = 25
-        self.weapon_type = Weapon_Type.MELEE
+    name = "melee"
+    bullet_color = (0,255,0)
+    bullet_velocity = 100
+    shots_per_second = 25
+    weapon_type = Weapon_Type.MELEE
 
 class BasicPew2(Weapon):
-    def __init__(self):
-        self.name = "auto"
-        self.bullet_radius = 10
-        self.bullet_velocity = 10
-        self.bullet_color = (255,20,147)
-        self.bullet_damage = 5
-        self.shots_per_second = 2
-        self.weapon_type = Weapon_Type.AUTOM
+    name = "auto"
+    bullet_radius = 10
+    bullet_velocity = 25
+    bullet_color = (255,20,147)
+    bullet_damage = 5
+    shots_per_second = 2
+    weapon_type = Weapon_Type.AUTOM
 
 class BasicPew3(Weapon):
-    def __init__(self):
-        self.name = "special"
-        self.bullet_radius = 10
-        self.bullet_velocity = 10
-        self.bullet_color = (50,205,50)
-        self.bullet_damage = 10
-        self.shots_per_second = 3
-        self.weapon_type = Weapon_Type.SPECI
-        self.status_effects = [lambda owner: Damage_Over_Time(owner, 3, 10)]
+    name = "special"
+    bullet_radius = 10
+    bullet_velocity = 25
+    bullet_color = (50,205,50)
+    bullet_damage = 10
+    shots_per_second = 3
+    weapon_type = Weapon_Type.SPECI
+    status_effects = [lambda owner: Damage_Over_Time(owner, 3, 10)]
 
 class BasicPew4(Weapon):
-    def __init__(self):
-        self.name = "explo"
-        self.bullet_radius = 5
-        self.bullet_velocity = 20
-        self.bullet_color = (255,69,0)
-        self.bullet_damage = 8
-        self.shots_per_second = 2
-        self.weapon_type = Weapon_Type.EXPLO
+    name = "explo"
+    bullet_radius = 5
+    bullet_velocity = 30
+    bullet_color = (255,69,0)
+    bullet_damage = 8
+    shots_per_second = 2
+    weapon_type = Weapon_Type.EXPLO
 
 class BasicPew5(Weapon):
-    def __init__(self):
-        self.name = "power"
-        self.bullet_radius = 25
-        self.bullet_velocity = 50
-        self.bullet_color = (123,104,238)
-        self.bullet_damage = 21
-        self.weapon_type = Weapon_Type.POWER
+    name = "power"
+    bullet_radius = 25
+    bullet_velocity = 50
+    bullet_color = (123,104,238)
+    bullet_damage = 21
+    weapon_type = Weapon_Type.POWER

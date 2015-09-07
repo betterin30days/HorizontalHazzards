@@ -2,7 +2,7 @@ import sys
 from screen.screen import *
 from weapon.weapon import *
 from ship.gameobject import *
-from ship.ship import *
+from ship.hero import *
 from ship.baddie import *
 from ship.spawner import *
 from level.level import *
@@ -33,6 +33,7 @@ class Game_Screen(Screen):
                     self.level.on_status_effect_callback,
                     self.level.baddie_bullet_add_callback,
                     self.level.baddie_on_death_callback,
+                    self.level.baddie_on_flee_callback,
                     xy[0],
                     xy[1],
                     [(700,400), (500,300), (200, 600)],
@@ -51,6 +52,7 @@ class Game_Screen(Screen):
                     self.level.on_status_effect_callback,
                     self.level.baddie_bullet_add_callback,
                     self.level.baddie_on_death_callback,
+                    self.level.baddie_on_flee_callback,
                     xy[0],
                     xy[1],
                     weapon=BasicPew4()),
@@ -70,6 +72,7 @@ class Game_Screen(Screen):
                     self.level.on_status_effect_callback,
                     self.level.baddie_bullet_add_callback,
                     self.level.baddie_on_death_callback,
+                    self.level.baddie_on_flee_callback,
                     xy[0],
                     xy[1],
                     weapon=BasicPew4()),
@@ -92,6 +95,11 @@ class Game_Screen(Screen):
         self.level.display()
         if self.mouse_x:
             self.screen.blit(self.cursor, (self.mouse_x, self.mouse_y))
+        font = pygame.font.SysFont("Courier New", 22)
+        text = font.render(str(int(self.screen_manager.clock.get_fps())), 1, (10, 10, 255))
+        textpos = text.get_rect()
+        textpos.centerx = self.screen.get_rect().topright[0]-textpos.w
+        self.screen.blit(text, textpos)
         pygame.display.update()
 
     def quit(self):

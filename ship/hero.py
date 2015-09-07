@@ -6,12 +6,13 @@ from assets.art.spritesheet import *
 
 class Hero(Ship, Spritesheet):
     weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
+        #TODO: Rework - sprite.group + actual inventory slots
     weapon_index = 0
-    next_level = 100
+    level_xp_start = 100
+    level_xp_next = 0
     level_interval = 2
-    health_multiplier = 0.0
-    damage_multiplier = 0.0
     kills_total = 0
+    enemy_missed_total = 0
     time_since_kill = 0.0
     kill_streak = 0
     name = "Hero"
@@ -48,6 +49,7 @@ class Hero(Ship, Spritesheet):
         self.weapon_index_update(5)
         self.health = self.health_max
         self.level = 1
+        self.level_xp_next = self.level_xp_start
 
     def weapon_index_update(self, index):
         self.weapon_index = index-1
@@ -59,13 +61,15 @@ class Hero(Ship, Spritesheet):
         else:
             self.weapon_index_update(self.weapon_index + 2)
 
+    def enemy_missed_increase(self):
+        self.enemy_missed_total += 1
+
     def on_level_up(self):
-        self.next_level *= self.level_interval
+        self.level_xp_next *= self.level_interval
         self.level += 1
         self.health_max *= self.health_multiplier
-        #self.damage *= self.damage_multiplier
         self.health = self.health_max
-        print ("Level {}! Next level at {} xp".format(self.level, self.next_level))
+        print ("Level {}! Next level at {} xp. Max health: {};".format(self.level, self.level_xp_next, self.health_max))
 
     def on_killed(self, target):
         self.experience_total += target.experience_total
@@ -86,9 +90,9 @@ class Hero(Ship, Spritesheet):
     def bullet_velocity_update(self, bullet):
         '''Update bullet velocity to pass through target'''
         if self.target_x and self.target_y:
-            self.slope = (self.target_y-self.y)/(self.target_x-self.x)
-            self.b = self.y - self.slope * self.x
-            self.y_1280x = self.slope*1280+self.b
+            #self.slope = (self.target_y-self.y)/(self.target_x-self.x)
+            #self.b = self.y - self.slope * self.x
+            #self.y_1280x = self.slope*1280+self.b
 
             uv = self.target_y - self.y
             tv = self.target_x - self.x
@@ -97,8 +101,8 @@ class Hero(Ship, Spritesheet):
 
             uv = abs(uv)
             tv = abs(tv)
-            self.v = (self.target_x, self.y)
-            theta = abs(math.atan(uv/tv) * (180/math.pi))
+            #self.v = (self.target_x, self.y)
+            #theta = abs(math.atan(uv/tv) * (180/math.pi))
             theta_r = abs(math.atan(uv/tv))
 
             ab = bullet.velocity
@@ -129,7 +133,7 @@ class Hero(Ship, Spritesheet):
         self.rect.center = (self.x, self.y)
 
         self.time_since_kill += delta
-        if self.experience_total >= self.next_level:
+        if self.experience_total >= self.level_xp_next:
             self.on_level_up()
         if self.time_since_kill > 3000:
             self.kill_streak = 0
@@ -151,7 +155,7 @@ class AverageShip(Hero):
     velocity_max = 25
     health_max = 100
     health_multiplier = 1.05
-    damage_multiplier = 1.05
+    damage_multiplier = 1.10
     animation_row = 1
     animations = []
 
@@ -160,7 +164,7 @@ class Tank(Hero):
     velocity_max = 20
     health_max = 150
     health_multiplier = 1.08
-    damage_multiplier = 1.02
+    damage_multiplier = 1.08
     animation_row = 4
     animations = []
 
@@ -169,6 +173,6 @@ class GlassCannon(Hero):
     velocity_max = 30
     health_max = 80
     health_multiplier = 1.02
-    damage_multiplier = 1.08
+    damage_multiplier = 1.12
     animation_row = 7
     animations = []

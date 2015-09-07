@@ -16,9 +16,6 @@ class Level(Screen):
     is_space_down = False
     is_lclick_down = False
 
-    status_effects = []
-    all_weapons = []
-
     #Sprite Groups
     all_sprites_group = None
     ship_group = None
@@ -26,6 +23,11 @@ class Level(Screen):
     baddie_group = None
     baddie_bullet_group = None
     all_drops_group = None
+    #Do not draw these; these will have images later but more
+    #importantly this allows sprite.kill() to remove all
+    #references. if we keep a hard list the object will exist
+    status_effects = None
+    all_weapons = None
 
     def __init__(self, screen_manager = None):
         super().__init__(screen_manager)
@@ -35,11 +37,14 @@ class Level(Screen):
         self.baddie_group = pygame.sprite.Group()
         self.baddie_bullet_group = pygame.sprite.Group()
         self.all_drops_group = pygame.sprite.Group()
+        self.status_effects = pygame.sprite.Group()
+        self.all_weapons = pygame.sprite.Group()
 
     def on_start(self, ship):
         self.ship = ship
         self.heads_up_display = HeadsUpDisplay(self.ship)
         self.ship.add(self.all_sprites_group, self.ship_group)
+        self.ship.bullet_add_callback = self.hero_bullet_add_callback
 
     def spawner_add(self, spawner):
         self.spawners.append(spawner)
@@ -50,6 +55,9 @@ class Level(Screen):
     def baddie_bullet_add_callback(self, bullet):
         bullet.add(self.all_sprites_group, self.baddie_bullet_group)
 
+    def baddie_on_flee_callback(self, baddie):
+        self.ship.enemy_missed_increase()
+
     def baddie_on_death_callback(self, baddie):
         drops = Droppable_Factory.drop_generate(baddie.name)
         x = baddie.x
@@ -59,13 +67,16 @@ class Level(Screen):
         self.all_drops_group.add(drops)
         self.all_sprites_group.add(drops)
 
+    def hero_bullet_add_callback(self, bullet):
+        bullet.add(self.all_sprites_group, self.hero_bullet_group)
+
     def on_weapon_update_callback(self, ship, weapon_before, weapon_after):
         if weapon_before in self.all_weapons:
             self.all_weapons.remove(weapon_before)
-        self.all_weapons.append(weapon_after)
+        self.all_weapons.add(weapon_after)
 
     def on_status_effect_callback(self, ship, status_effect):
-        self.status_effects.append(status_effect)
+        self.status_effects.add(status_effect)
 
     def handle_event(self, event):
         if event.type == MOUSEMOTION:
@@ -132,6 +143,7 @@ class Level(Screen):
                 bullet.add(self.all_sprites_group, self.hero_bullet_group)
 
         self.all_sprites_group.update(delta)
+        self.all_weapons.update(delta)
         for spawner in self.spawners:
             spawner.update(delta)
 
@@ -150,6 +162,7 @@ class Level(Screen):
         for bullet, enemys in collision.items():
             for enemy in enemys:
                 bullet.on_collision(enemy)
+                self.ship.on_bullet_hit(enemy)
 
         #Hero being shot by Baddie bullets
         collision = pygame.sprite.groupcollide(

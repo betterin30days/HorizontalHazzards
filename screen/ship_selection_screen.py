@@ -3,7 +3,7 @@ from weapon.weapon import *
 from ship.gameobject import *
 from ship.direction import *
 from ship.shared import *
-from ship.ship import *
+from ship.hero import *
 from ship.baddie import *
 from .game_screen import *
 
