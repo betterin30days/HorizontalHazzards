@@ -10,8 +10,11 @@ class Level(Screen):
     heads_up_display = None
     move_x = []
     move_y = []
+    mouse_x = 0
+    mouse_y = 0
     is_paused = False
     is_space_down = False
+    is_lclick_down = False
 
     status_effects = []
     all_weapons = []
@@ -65,11 +68,20 @@ class Level(Screen):
         self.status_effects.append(status_effect)
 
     def handle_event(self, event):
-        if event.type == KEYDOWN:
+        if event.type == MOUSEMOTION:
+            self.mouse_x, self.mouse_y = event.pos
+            self.ship.target_update(self.mouse_x, self.mouse_y)
+        elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+            self.is_lclick_down = True
+        elif event.type == MOUSEBUTTONUP and event.button == 1:
+            self.is_lclick_down = False
+        elif event.type == KEYDOWN:
             if event.key == K_p:
                 self.is_paused = not self.is_paused
             elif event.key == K_SPACE:
                 self.is_space_down = True
+            elif event.key == K_TAB:
+                self.ship.weapon_index_advance()
             elif event.key == K_1:
                 self.ship.weapon_index_update(1)
             elif event.key == K_2:
@@ -114,7 +126,7 @@ class Level(Screen):
             dy = self.move_y[len(self.move_y)-1]
         
         self.ship.velocity_update(dx, dy)
-        if self.is_space_down:
+        if self.is_space_down or self.is_lclick_down:
             bullet = self.ship.shoot_bullet()
             if bullet:
                 bullet.add(self.all_sprites_group, self.hero_bullet_group)
@@ -174,7 +186,12 @@ class Level(Screen):
         super().display()
         self.all_sprites_group.draw(self.screen)
         self.heads_up_display.draw(self.screen)
-        pygame.display.update()
+
+        #ship = [ship for ship in self.ship_group]
+        #ship = ship[0]
+        #pygame.draw.line(self.screen, (255,0,0), (ship.x, ship.y), (ship.v))
+        #pygame.draw.line(self.screen, (255,0,0), (640,360), (ship.v))
+        #pygame.draw.line(self.screen, (255,0,0), (0, ship.b), (1280, ship.y_1280x))
 
 '''class LevelOne(Level):
     spawners = [

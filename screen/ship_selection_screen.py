@@ -50,7 +50,7 @@ class Ship_Selection_Screen(Screen):
         self.ships = [AverageShip, Tank, GlassCannon]
 
         for i, ship in enumerate(self.ships):
-            ship = ship(None, None, (i+1)*300, 360, BasicPew())
+            ship = ship(None, None, (i+1)*300, 360)
             ship.add(self.all_sprites_group)
 
         self.selector = Selector(600,360)
@@ -63,7 +63,7 @@ class Ship_Selection_Screen(Screen):
                 self.selector.move(-1)
             elif event.key in [K_RIGHT, K_d]:
                 self.selector.move(1)
-            elif event.key == K_RETURN:
+            elif event.key in [K_RETURN, K_KP_ENTER, K_SPACE]:
                 self.selectected_ship = self.ships[self.selector.index]
                 self.screen_manager.screen_remove(self)
                 self.screen_manager.screen_add(Game_Screen(self.screen_manager, self.selectected_ship))

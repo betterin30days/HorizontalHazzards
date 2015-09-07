@@ -12,6 +12,7 @@ class Screen(object):
             #assert(isinstance(screen_manager, Screen_Manager))
             self.screen_manager = screen_manager
         pygame.init()
+        pygame.mouse.set_visible(False)
         self.screen = pygame.display.set_mode((1280, 720))
         self.background = pygame.Surface(self.screen.get_size()).convert()
         self.background.fill((0, 0, 0))

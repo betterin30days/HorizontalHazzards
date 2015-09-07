@@ -57,6 +57,8 @@ class Weapon(GameObject):
 
 class Bullet(GameObject):
     velocity = None
+    velocity_x = None
+    velocity_y = None
     color = None
     radius = None
     damage = None
@@ -86,7 +88,11 @@ class Bullet(GameObject):
             0)
 
     def update(self, delta):
-        self.x += self.velocity * delta/100
+        if self.velocity_x or self.velocity_y:
+            self.x += self.velocity_x * delta/100
+            self.y += self.velocity_y * delta/100
+        else:
+            self.x += self.velocity * delta/100
         self.rect.center = (self.x, self.y)
         if self.x > 1280 or self.x < 0 or self.y > 720 or self.y < 0:
             self.kill()

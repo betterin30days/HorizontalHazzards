@@ -10,11 +10,14 @@ from level.level import *
 class Game_Screen(Screen):
     ship = None
     level = None
+    cursor = None
+    mouse_x, mouse_y = None, None
 
     def __init__(self, screen_manager, ship_class):
         super().__init__(screen_manager)
+        self.cursor = pygame.image.load(os.path.join('assets', 'art', 'cursor.png'))
         self.level = Level()
-        self.ship = ship_class(self.level.on_weapon_update_callback, self.level.on_status_effect_callback, 100, 360, BasicPew())
+        self.ship = ship_class(self.level.on_weapon_update_callback, self.level.on_status_effect_callback, 100, 360)
         self.level.on_start(self.ship)
         self.level.spawner_add(
             Spawner(
@@ -75,6 +78,8 @@ class Game_Screen(Screen):
 
     def handle_event(self, event):
         """Translate user input to model actions"""
+        if event.type == MOUSEMOTION:
+            self.mouse_x, self.mouse_y = event.pos
         self.level.handle_event(event)
 
     def update(self, delta):
@@ -85,6 +90,8 @@ class Game_Screen(Screen):
         """Blit everything to the screen"""
         super().display()
         self.level.display()
+        if self.mouse_x:
+            self.screen.blit(self.cursor, (self.mouse_x, self.mouse_y))
         pygame.display.update()
 
     def quit(self):
