@@ -29,6 +29,7 @@ class Ship(GameObject):
     bullet_shot_count = 0
     bullet_hitt_count = 0
     status_effects = []
+    bullet_velocity_update = None
 
     def __init__(self, on_weapon_update_callback, on_status_effect_callback):
         super().__init__()
@@ -36,6 +37,10 @@ class Ship(GameObject):
         self.on_status_effect_callback = on_status_effect_callback
 
     def update(self, delta):
+        if self.health <= 0:
+            self.on_death()
+            return
+
         if self.move_y:
             if self.move_y.y_delta < 0:
                 self.velocity_y += -1
@@ -66,9 +71,6 @@ class Ship(GameObject):
         self.y += self.velocity_y * delta/100
         self.rect.center = (self.x, self.y)
 
-        if self.health <= 0:
-            self.on_death()
-
     def is_alive(self):
         return self.health > 0
 
@@ -94,6 +96,8 @@ class Ship(GameObject):
         if self.is_alive():
             bullet = self.weapon.bullet_create(self.x, self.y)
             if bullet:
+                if self.bullet_velocity_update:
+                    self.bullet_velocity_update(bullet)
                 self.bullet_shot_count += 1
                 return bullet
 
