@@ -1,13 +1,27 @@
-import pygame
+import pygame, random
 
 class Droppable_Factory(object):
 
     def drop_generate(generating_type):
-        return [
-            GoldDrop(12),
-            HealthDrop(5),
-            GoldDrop(25)
-        ]
+        if generating_type == "Baddie":
+            return [
+                GoldDrop(random.randrange(10,25)),
+                HealthDrop(random.randrange(5,12)),
+                GoldDrop(random.randrange(10,25))
+            ]
+        elif generating_type == "Mini-Boss":
+            drops = []
+            for i in range(0, random.randrange (15, 40)):
+                chance = random.random()
+                if chance < 0.10:
+                    drops.append(GoldDrop(random.randrange(100,200)))
+                elif chance < 0.98:
+                    drops.append(GoldDrop(random.randrange(40,60)))
+                else:
+                    drops.append(GoldDrop(random.randrange(200,400)))
+            return drops
+
+
 
 class Droppable(pygame.sprite.Sprite):
     owner = None

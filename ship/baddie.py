@@ -1,4 +1,5 @@
 import pygame, os
+import random
 from weapon import *
 from ship.shared import *
 from ship.gameobject import *
@@ -6,12 +7,22 @@ from weapon.droppable import *
 from assets.art.spritesheet import *
 
 class Baddie(Ship, Spritesheet):
+    name = "Baddie"
+    #
     waypoint = []
     waypoint_index = 0
-    damage_collision = 10
     health_multiplier = 1.15
     damage_multiplier = 1.1
+    experience_total = 75
     #
+    collision_damage = None #Calculated
+    collision_damage_base = 10
+    collision_time_since_last = 0
+    collisions_per_second = 2
+    collision_kills_self = True
+    #
+    sprite_image = None
+    sprite_scale = 1
     animation_counter = 0
     animation_time_ms = 200
     animation_current_ms = 0
@@ -43,15 +54,17 @@ class Baddie(Ship, Spritesheet):
             50,
             50,
             (255, 255, 255))
-        self.name = "Baddie"
         self.bullet_add_callback = bullet_add_callback
         self.on_death_callback = on_death_callback
         self.on_flee_callback = on_flee_callback
         if weapon:
             weapon.bullet_velocity *= -1
             self.on_weapon_update (weapon)
-        self.image = self.animations[self.animation_counter]
+        self.sprite_image = self.animations[self.animation_counter]
+        self.sprite_rect = self.sprite_image.get_rect()
+        self.image = pygame.Surface([self.sprite_rect.width*self.sprite_scale, self.sprite_rect.height*self.sprite_scale]).convert()
         self.rect = self.image.get_rect()
+        self.image.set_colorkey((255, 255, 255), pygame.RLEACCEL)
         self.rect.center = (x, y)
         self.x, self.y = x, y
         self.level = level
@@ -60,23 +73,26 @@ class Baddie(Ship, Spritesheet):
         self.on_weapon_update_callback = on_weapon_update_callback
         self.on_status_effect_callback = on_status_effect_callback
         self.health_max = 100 * pow(self.health_multiplier, self.level)
-        self.damage_collision = 10 * pow(self.damage_multiplier, self.level)
-        #print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.damage_collision))
+        self.collision_damage = self.collision_damage_base * pow(self.damage_multiplier, self.level)
+        #print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.collision_damage))
         self.health = self.health_max
         self.velocity_max = 15
-        self.waypoint = waypoint
+        if waypoint:
+            self.waypoint = waypoint
         self.velocity_update(Shared.LEFT, None)
-        self.experience_total = 75
 
     def on_death(self):
         self.on_death_callback(self)
         self.kill()
 
     def on_collision(self, target):
-        damage_taken = target.on_hit(self.damage_collision)
-        if damage_taken:
-            self.on_damage_dealt(target, damage_taken)
-        self.on_death()
+        if self.collision_time_since_last > (1.0 / self.collisions_per_second * 1000):
+            self.collision_time_since_last = 0
+            damage_taken = target.on_hit(self.collision_damage)
+            if damage_taken:
+                self.on_damage_dealt(target, damage_taken)
+            if self.collision_kills_self:
+                self.on_death()
 
     def on_flee(self):
         if self.on_flee_callback:
@@ -85,6 +101,7 @@ class Baddie(Ship, Spritesheet):
 
     def update(self, delta):
         super().update(delta)
+        self.collision_time_since_last += delta
         if self.weapon.sprite:
             self.shoot_bullet()
 
@@ -94,15 +111,18 @@ class Baddie(Ship, Spritesheet):
                 self.animation_counter += 1
             else:
                 self.animation_counter = 0
-            self.image = self.animations[self.animation_counter]
+            self.sprite_image = self.animations[self.animation_counter]
             self.animation_current_ms = 0
+            if self.sprite_scale != 1:
+                pygame.transform.scale(self.sprite_image, (self.rect.width, self.rect.height), self.image)
+            else:
+                self.image = self.sprite_image
 
         if self.waypoint and len(self.waypoint) > self.waypoint_index:
             destination = self.waypoint[self.waypoint_index]
             dx = destination[0] - self.x
             dy = destination[1] - self.y
-            x = None
-            y = None
+            x, y = None, None
             if dx < -10:
                 x = Shared.LEFT
             elif dx > 10:
@@ -119,3 +139,28 @@ class Baddie(Ship, Spritesheet):
 
         if self.x < 0:
             self.on_flee()
+
+class R2LShootingBaddie(Baddie):
+    bullet_target_velocity_update = None
+
+class MiniBoss(Baddie):
+    name = "Mini-Boss"
+    sprite_scale = 3.0
+    experience_total = 888
+    health_multiplier = 45
+    damage_multiplier = 3
+    waypoint = [(640,360)]
+    #
+    collision_damage_base = 15
+    collisions_per_second = 1
+    collision_kills_self = False
+
+
+    def update(self, delta):
+        if self.waypoint_index == 1:
+            self.waypoint_index = 0
+            x = random.randrange(0+self.rect.width, 1280-self.rect.width)
+            y = random.randrange(0+self.rect.height, 720-self.rect.height)
+            self.waypoint = [(x, y)]
+
+        super().update(delta)

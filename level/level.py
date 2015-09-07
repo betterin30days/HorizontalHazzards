@@ -1,3 +1,4 @@
+import math
 from screen.screen import *
 from ship.baddie import *
 from ship.spawner import *
@@ -52,7 +53,9 @@ class Level(Screen):
     def baddie_add_callback(self, baddie):
         baddie.add(self.all_sprites_group, self.baddie_group)
 
-    def baddie_bullet_add_callback(self, bullet):
+    def baddie_bullet_add_callback(self, baddie, bullet):
+        if baddie.bullet_target_velocity_update:
+            baddie.bullet_target_velocity_update(bullet, (self.ship.x, self.ship.y))
         bullet.add(self.all_sprites_group, self.baddie_bullet_group)
 
     def baddie_on_flee_callback(self, baddie):
@@ -61,13 +64,15 @@ class Level(Screen):
     def baddie_on_death_callback(self, baddie):
         drops = Droppable_Factory.drop_generate(baddie.name)
         x = baddie.x
-        for drop in drops:
-            drop.draw(x, baddie.y)
-            x += 10
+        y = baddie.y
+        mod = math.sqrt(len(drops))
+        for i, drop in enumerate(drops):
+            drop.draw(x + 10*(i%mod), y + 10*(i/mod))
+
         self.all_drops_group.add(drops)
         self.all_sprites_group.add(drops)
 
-    def hero_bullet_add_callback(self, bullet):
+    def hero_bullet_add_callback(self, hero, bullet):
         bullet.add(self.all_sprites_group, self.hero_bullet_group)
 
     def on_weapon_update_callback(self, ship, weapon_before, weapon_after):
@@ -178,7 +183,7 @@ class Level(Screen):
         collision = pygame.sprite.groupcollide(
             self.baddie_group,
             self.ship_group,
-            True,
+            False,
             False)
         for baddie, ships in collision.items():
             for ship in ships:

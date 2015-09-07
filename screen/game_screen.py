@@ -19,6 +19,25 @@ class Game_Screen(Screen):
         self.level = Level()
         self.ship = ship_class(self.level.on_weapon_update_callback, self.level.on_status_effect_callback, 100, 360)
         self.level.on_start(self.ship)
+
+        self.level.spawner_add(
+            Spawner(
+                self,
+                self.level.baddie_add_callback,
+                35.0,
+                0.0,
+                1300,
+                500,
+                1,
+                lambda xy: MiniBoss(
+                    self.level.on_weapon_update_callback,
+                    self.level.on_status_effect_callback,
+                    self.level.baddie_bullet_add_callback,
+                    self.level.baddie_on_death_callback,
+                    self.level.baddie_on_flee_callback,
+                    xy[0],
+                    xy[1],
+                    weapon=BasicPew4())))
         self.level.spawner_add(
             Spawner(
                 self,
@@ -28,7 +47,7 @@ class Game_Screen(Screen):
                 900,
                 500,
                 5,
-                lambda xy: Baddie(
+                lambda xy: R2LShootingBaddie(
                     self.level.on_weapon_update_callback,
                     self.level.on_status_effect_callback,
                     self.level.baddie_bullet_add_callback,
@@ -42,7 +61,7 @@ class Game_Screen(Screen):
             Spawner(
                 self,
                 self.level.baddie_add_callback,
-                18.0,
+                16.0,
                 3.0,
                 900,
                 300,
@@ -62,7 +81,7 @@ class Game_Screen(Screen):
             Spawner(
                 self,
                 self.level.baddie_add_callback,
-                35.0,
+                30.0,
                 1.0,
                 900,
                 100,

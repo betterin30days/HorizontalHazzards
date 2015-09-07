@@ -1,4 +1,4 @@
-import pygame, os, math
+import pygame, os
 from weapon.weapon import *
 from ship.shared import *
 from ship.gameobject import *
@@ -68,15 +68,16 @@ class Hero(Ship, Spritesheet):
         self.level_xp_next *= self.level_interval
         self.level += 1
         self.health_max *= self.health_multiplier
-        self.health = self.health_max
+        self.health += (self.health_max - self.health) / 2
         print ("Level {}! Next level at {} xp. Max health: {};".format(self.level, self.level_xp_next, self.health_max))
 
     def on_killed(self, target):
         self.experience_total += target.experience_total
         self.kills_total += 1
         self.kill_streak += 1
-        print (" Hero xp: {}; killed {}; total kills: {}; streak: {}; time since kill: {}".format(
-            self.experience_total,
+        print (">Hero xp: {} + {}; killed {}; kills: {}; streak: {}; time since: {}".format(
+            self.experience_total - target.experience_total,
+            target.experience_total,
             target.name,
             self.kills_total,
             self.kill_streak,
@@ -90,34 +91,19 @@ class Hero(Ship, Spritesheet):
     def bullet_velocity_update(self, bullet):
         '''Update bullet velocity to pass through target'''
         if self.target_x and self.target_y:
+            self.bullet_target_velocity_update(bullet, (self.target_x, self.target_y))
+
             #self.slope = (self.target_y-self.y)/(self.target_x-self.x)
             #self.b = self.y - self.slope * self.x
             #self.y_1280x = self.slope*1280+self.b
-
-            uv = self.target_y - self.y
-            tv = self.target_x - self.x
-            y_multiplier = 1 if uv > 0 else -1
-            x_multiplier = 1 if tv > 0 else -1
-
-            uv = abs(uv)
-            tv = abs(tv)
             #self.v = (self.target_x, self.y)
             #theta = abs(math.atan(uv/tv) * (180/math.pi))
-            theta_r = abs(math.atan(uv/tv))
-
-            ab = bullet.velocity
-            bc = math.sin(theta_r) * ab
-            ac = math.cos(theta_r) * ab
-            slope_reduced = bc/ac
-            dy = bc*y_multiplier
-            dx = ac*x_multiplier
+            #slope_reduced = bc/ac
 
             #print ("UV: {} = BC: {}, TV: {} = AC: {}, UT: {} = AB: {}".format(uv, bc, tv, ac, math.sqrt((uv*uv + tv*tv)), ab))
             #print ("Theta: {}; Theta R: {}, Slope: {}; reduced Slope: {}".format(theta, theta_r, self.slope, slope_reduced))
-            #print ("dy: {}; dx: {}".format(dy, dx))
+            #print ("dy: {}; dx: {}".format(bullet.velocity_y, bullet.velocity_x))
 
-            bullet.velocity_y = dy
-            bullet.velocity_x = dx
 
     def update(self, delta):
         x_before = self.x

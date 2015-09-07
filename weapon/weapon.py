@@ -108,7 +108,8 @@ class Bullet(GameObject):
             for status_effect in self.status_effects:
                 target.on_status_effect(status_effect(self.owner.sprite))
             if target.health == 0:
-                self.owner.sprite.on_killed(target)
+                if self.owner.sprite:
+                    self.owner.sprite.on_killed(target)
                 target.on_death()
 
 class BasicPew(Weapon):

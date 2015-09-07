@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from weapon.weapon import *
 from ship.shared import *
 
@@ -90,7 +90,7 @@ class Ship(GameObject):
 
     def on_damage_dealt(self, target, damage):
         self.damage_dealt_total += damage
-        #print("{} total damage dealt: {}".format(self.name, self.damage_dealt_total))
+        #print("{} dealt {} for total: {}".format(self.name, int(damage), int(self.damage_dealt_total)))
         if not target.is_alive():
             self.on_killed(target)
 
@@ -103,7 +103,7 @@ class Ship(GameObject):
                     if self.bullet_velocity_update:
                         self.bullet_velocity_update(bullet)
                     if self.bullet_add_callback:
-                        self.bullet_add_callback(bullet)
+                        self.bullet_add_callback(self, bullet)
                     self.bullet_shot_count += 1
                     # print("{} => shoot_bullet - damage: {}; dx: {}; dy: {};".format(
                     #         self.name,
@@ -112,6 +112,27 @@ class Ship(GameObject):
                     #         bullet.velocity_y
                     #     ))
                     return bullet
+
+    def bullet_target_velocity_update(self, bullet, target):
+        '''Update bullet velocity to pass through target'''
+        if target[0] and target[1]:
+            tv = target[0] - bullet.x
+            uv = target[1] - bullet.y
+            x_multiplier = 1 if tv > 0 else -1
+            y_multiplier = 1 if uv > 0 else -1
+
+            uv, tv = abs(uv), abs(tv)
+            theta_r = abs(math.atan(uv/tv))
+            ab = abs(bullet.velocity)
+            bc = math.sin(theta_r) * ab
+            ac = math.cos(theta_r) * ab
+            bullet.velocity_x = ac * x_multiplier
+            bullet.velocity_y = bc * y_multiplier
+            # print("self: {}, {}; target: {}, {}; dx, dy: {}, {}".format(
+            #         int(self.x), int(self.y),
+            #         int(target[0]), int(target[1]),
+            #         int(bullet.velocity_x), int(bullet.velocity_y)
+            #     ))
 
     def on_status_effect(self, status_effect):
         if not status_effect.is_stacking:
