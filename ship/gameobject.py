@@ -72,7 +72,7 @@ class Ship(GameObject):
         self.rect.center = (self.x, self.y)
 
     def is_alive(self):
-        return self.health >= 0 and self.alive()
+        return self.health > 0 and self.alive()
 
     def velocity_update(self, dx, dy):
         self.move_x = dx
