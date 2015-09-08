@@ -44,8 +44,8 @@ class Weapon(GameObject):
     # def on_drop(self):
     #     self.owner.empty()
 
-    def bullet_create(self, x, y):
-        if (not self.has_fired or self.fired_last_bullet_time >= (1.0 / self.shots_per_second * 1000)):
+    def bullet_create(self, x, y, override_throttle = False):
+        if override_throttle or (not self.has_fired or self.fired_last_bullet_time >= (1.0 / self.shots_per_second * 1000)):
             self.fired_last_bullet_time = 0
             self.has_fired = True
             return Bullet(x, y,
@@ -90,7 +90,7 @@ class Bullet(GameObject):
             0)
 
     def update(self, delta):
-        if self.velocity_x or self.velocity_y:
+        if self.velocity_x and self.velocity_y:
             self.x += self.velocity_x * delta/100
             self.y += self.velocity_y * delta/100
         else:
@@ -131,7 +131,7 @@ class BasicPew2(Weapon):
 class BasicPew3(Weapon):
     name = "special"
     bullet_radius = 10
-    bullet_velocity = 25
+    bullet_velocity = 45
     bullet_color = (50,205,50)
     bullet_damage = 10
     shots_per_second = 3

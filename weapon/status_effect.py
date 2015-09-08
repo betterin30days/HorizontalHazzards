@@ -56,5 +56,5 @@ class Damage_Over_Time(Status_Effect):
         super().effect_apply()
         if self.alive():
             damage_taken = self.target.sprite.on_hit(self.damage_per_second / self.damage_ticks_per_second)
-            if damage_taken:
+            if damage_taken and self.owner.sprite:
                 self.owner.sprite.on_damage_dealt(self.target.sprite, damage_taken)

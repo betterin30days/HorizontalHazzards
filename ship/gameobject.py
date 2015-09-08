@@ -134,6 +134,20 @@ class Ship(GameObject):
             #         int(bullet.velocity_x), int(bullet.velocity_y)
             #     ))
 
+    def bullet_degree_velocity_update(self, bullet, degrees):
+        '''From bullet x,y head in direction degrees'''
+        theta_r = degrees * math.pi / 180
+        ab = abs(bullet.velocity)
+        bc = math.sin(theta_r) * ab
+        ac = math.cos(theta_r) * ab
+        bullet.velocity_x = ac
+        bullet.velocity_y = bc
+        # print("self: {}, {}; degree: {}; dx, dy: {}, {}".format(
+        #         int(bullet.x), int(bullet.y),
+        #         int(degrees),
+        #         int(bullet.velocity_x), int(bullet.velocity_y)
+        #     ))
+
     def on_status_effect(self, status_effect):
         if not status_effect.is_stacking:
             if status_effect in self.status_effects:

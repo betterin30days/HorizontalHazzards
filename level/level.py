@@ -54,7 +54,7 @@ class Level(Screen):
         baddie.add(self.all_sprites_group, self.baddie_group)
 
     def baddie_bullet_add_callback(self, baddie, bullet):
-        if baddie.bullet_target_velocity_update:
+        if baddie.bullet_target_velocity_update and bullet.velocity_x is None:
             baddie.bullet_target_velocity_update(bullet, (self.ship.x, self.ship.y))
         bullet.add(self.all_sprites_group, self.baddie_bullet_group)
 

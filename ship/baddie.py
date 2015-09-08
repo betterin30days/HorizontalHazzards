@@ -1,8 +1,8 @@
 import pygame, os
 import random
-from weapon import *
 from ship.shared import *
 from ship.gameobject import *
+from weapon.weapon import *
 from weapon.droppable import *
 from assets.art.spritesheet import *
 
@@ -154,13 +154,28 @@ class MiniBoss(Baddie):
     collision_damage_base = 15
     collisions_per_second = 1
     collision_kills_self = False
+    #
+    ring_shots_per_second = 1
+    ring_shot_time_since = 0
 
+    def bullet_ring_shot(self):
+        pew = BasicPew3()
+        for i in range(0, 36):
+            bullet = pew.bullet_create(self.x, self.y, override_throttle = True)
+            self.bullet_degree_velocity_update(bullet, i*36)
+            if self.bullet_add_callback:
+                self.bullet_add_callback(self, bullet)
+            self.bullet_shot_count += 1
 
     def update(self, delta):
+        self.ring_shot_time_since += delta
         if self.waypoint_index == 1:
             self.waypoint_index = 0
             x = random.randrange(0+self.rect.width, 1280-self.rect.width)
             y = random.randrange(0+self.rect.height, 720-self.rect.height)
             self.waypoint = [(x, y)]
 
+        if self.ring_shot_time_since > (1.0 / self.ring_shots_per_second * 1000):
+            self.ring_shot_time_since = 0
+            self.bullet_ring_shot()
         super().update(delta)
