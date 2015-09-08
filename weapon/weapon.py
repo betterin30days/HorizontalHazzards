@@ -82,6 +82,9 @@ class Bullet(GameObject):
         self.velocity = velocity
         self.color = color
         self.radius = radius
+        self.draw()
+
+    def draw(self):
         pygame.draw.circle(
             self.image,
             self.color,
