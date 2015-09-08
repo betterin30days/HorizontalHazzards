@@ -32,6 +32,7 @@ class Ship(GameObject):
     bullet_velocity_update = None
     health_multiplier = 1.0
     damage_multiplier = 1.0
+    health_change = None
 
     def __init__(self, on_weapon_update_callback, on_status_effect_callback):
         super().__init__()
@@ -39,6 +40,7 @@ class Ship(GameObject):
         self.status_effects = pygame.sprite.Group()
         self.on_weapon_update_callback = on_weapon_update_callback
         self.on_status_effect_callback = on_status_effect_callback
+        self.health_change = []
 
     def update(self, delta):
         if self.move_y:
@@ -83,6 +85,7 @@ class Ship(GameObject):
             damage_received = self.health
 
         self.health -= damage_received
+        self.health_change.append(("on_hit", damage_received, self.health, self.health_max))
         return damage_received
 
     def on_bullet_hit(self, baddie):
@@ -177,9 +180,10 @@ class Ship(GameObject):
     def health_update(self, amount):
         before = self.health
         if self.health + amount > self.health_max:
-            self.health = self.health_max
-        else:
-            self.health += amount
+            amount = self.health_max - self.health
+
+        self.health += amount
+        self.health_change.append(("health_update", amount, self.health, self.health_max))
         #print ("Health updated to from {} to {}".format(before, self.health))
 
     def on_killed(self, target):

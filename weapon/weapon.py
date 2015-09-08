@@ -139,7 +139,7 @@ class BasicPew3(Weapon):
     bullet_damage = 10
     shots_per_second = 3
     weapon_type = Weapon_Type.SPECI
-    status_effects = [lambda owner: Damage_Over_Time(owner, 3, 10)]
+    status_effects = [lambda owner: Damage_Over_Time(owner, 3, 6)]
 
 class BasicPew4(Weapon):
     name = "explo"

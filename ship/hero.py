@@ -68,7 +68,9 @@ class Hero(Ship, Spritesheet):
         self.level_xp_next *= self.level_interval
         self.level += 1
         self.health_max *= self.health_multiplier
-        self.health += (self.health_max - self.health) / 2
+        health_increase = (self.health_max - self.health) / 2
+        self.health += health_increase
+        self.health_change.append(("on_level_up", health_increase, self.health, self.health_max))
         print ("Level {}! Next level at {} xp. Max health: {};".format(self.level, self.level_xp_next, self.health_max))
 
     def on_killed(self, target):
@@ -134,6 +136,16 @@ class Hero(Ship, Spritesheet):
 
     def on_death(self):
         print("YOU DIED")
+        for update in self.health_change:
+            #name, amount, health
+            print ("{:03d} {} {:03d} => {:03d}/{:03d} : {}".format(
+                int(update[1] + update[2]) if update[0] == "on_hit" else int(update[2] - update[1]),
+                "-" if update[0] == "on_hit" else "+",
+                int(update[1]),
+                int(update[2]),
+                int(update[3]),
+                update[0]))
+
         self.kill()
 
 class AverageShip(Hero):

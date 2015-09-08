@@ -148,7 +148,7 @@ class MiniBoss(Baddie):
     sprite_scale = 3.0
     experience_total = 888
     health_multiplier = 45
-    damage_multiplier = 3
+    damage_multiplier = 2.5
     waypoint = [(640,360)]
     #
     collision_damage_base = 15
