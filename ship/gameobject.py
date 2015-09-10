@@ -3,9 +3,28 @@ from weapon.weapon import *
 from ship.shared import *
 
 class GameObject(pygame.sprite.Sprite):
+    image = None
+    rect = None
+    x, y = 0, 0
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+
+    def __str__(self):
+        answer = "\n\r>>BEGIN {} -> {}\n\r".format(
+            self.__class__.__name__,
+            self.__class__.__bases__)
+        for a in dir(self):
+            if a and a[0] == "_":
+                pass
+            else:
+                answer += "\t{} => {}\n\r".format(a, eval("self.{}".format(a)))
+
+        answer += "\n\r>>END {}\n\r".format(self.__class__.__name__)
+        return answer
+
+    def draw(surface):
+        surface.blit(self.image, (self.x, self.y))
 
 class Ship(GameObject):
     name = ""
@@ -19,13 +38,10 @@ class Ship(GameObject):
     velocity_x = 0
     velocity_y = 0
     velocity_max = 0
-    acceleration = 0
-    acceleration_max = 0
     experience_total = 0
     level = 0
     weapon = None
     damage_dealt_total = 0
-    bullet_group = None
     bullet_shot_count = 0
     bullet_hitt_count = 0
     status_effects = None

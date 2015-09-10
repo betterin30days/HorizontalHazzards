@@ -26,8 +26,6 @@ class Baddie(Ship, Spritesheet):
     animation_counter = 0
     animation_time_ms = 200
     animation_current_ms = 0
-    animations = []
-    #TODO serious problem with sharing spritesheets
 
     on_weapon_update_callback = None
     on_status_effect_callback = None

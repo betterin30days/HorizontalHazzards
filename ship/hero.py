@@ -20,18 +20,15 @@ class Hero(Ship, Spritesheet):
     #Should be attributes available from the sprite system
     sprite_width = 100
     sprite_height = 50
-
+    #animation
     animation_counter = 0
     animation_time_ms = 200
     animation_current_ms = 0
 
-    slope = 0.0
-    b = 0
-    y_1280x = 0
-    v = (0,0)
+    is_on_level = False
     target_x, target_y = None, None
 
-    def __init__(self, on_weapon_update_callback, on_status_effect_callback, x, y):
+    def __init__(self, on_weapon_update_callback = None, on_status_effect_callback = None, x = 0, y = 0):
         super().__init__(on_weapon_update_callback, on_status_effect_callback)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
@@ -90,6 +87,10 @@ class Hero(Ship, Spritesheet):
         self.target_x = target_x
         self.target_y = target_y
 
+    # slope = 0.0
+    # b = 0
+    # y_1280x = 0
+    # v = (0,0)
     def bullet_velocity_update(self, bullet):
         '''Update bullet velocity to pass through target'''
         if self.target_x and self.target_y:
@@ -111,20 +112,22 @@ class Hero(Ship, Spritesheet):
         x_before = self.x
         y_before = self.y
         super().update(delta)
-        #Keep the ship on screen
-        if (self.x < 0 + self.sprite_width/2 or
-            self.x > 1280 - self.sprite_width/2):
-            self.x = x_before
-        if (self.y < 0 + self.sprite_height/2 or
-            self.y > 720 - self.sprite_height/2):
-            self.y = y_before
-        self.rect.center = (self.x, self.y)
+        if self.is_on_level:
+            #Keep the ship on screen
+            if (self.x < 0 + self.sprite_width/2 or
+                self.x > 1280 - self.sprite_width/2):
+                self.x = x_before
+            if (self.y < 0 + self.sprite_height/2 or
+                self.y > 720 - self.sprite_height/2):
+                self.y = y_before
 
-        self.time_since_kill += delta
-        if self.experience_total >= self.level_xp_next:
-            self.on_level_up()
-        if self.time_since_kill > 3000:
-            self.kill_streak = 0
+            self.rect.center = (self.x, self.y)
+            self.time_since_kill += delta
+            if self.experience_total >= self.level_xp_next:
+                self.on_level_up()
+            if self.time_since_kill > 3000:
+                self.kill_streak = 0
+
         self.animation_current_ms += delta
         if self.animation_time_ms <= self.animation_current_ms:
             if self.animation_counter < 3:
@@ -136,6 +139,7 @@ class Hero(Ship, Spritesheet):
 
     def on_death(self):
         print("YOU DIED")
+        print("--Health Report--")
         for update in self.health_change:
             #name, amount, health
             print ("{:03d} {} {:03d} => {:03d}/{:03d} : {}".format(
@@ -149,28 +153,28 @@ class Hero(Ship, Spritesheet):
         self.kill()
 
 class AverageShip(Hero):
+    name = "Average"
     color = (0, 0, 255)
     velocity_max = 25
     health_max = 100
     health_multiplier = 1.05
     damage_multiplier = 1.10
     animation_row = 1
-    animations = []
 
 class Tank(Hero):
+    name = "Tank"
     color = (0, 255, 0)
     velocity_max = 20
     health_max = 150
     health_multiplier = 1.08
     damage_multiplier = 1.08
     animation_row = 4
-    animations = []
 
 class GlassCannon(Hero):
+    name = "GlassCannon"
     color = (255, 0, 0)
     velocity_max = 30
     health_max = 80
     health_multiplier = 1.02
     damage_multiplier = 1.12
     animation_row = 7
-    animations = []
