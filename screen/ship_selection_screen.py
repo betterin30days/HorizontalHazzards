@@ -1,5 +1,4 @@
 from .screen import *
-from weapon.weapon import *
 from ship.gameobject import *
 from ship.direction import *
 from ship.shared import *
@@ -45,7 +44,7 @@ class Ship_Selection_Screen(Screen):
         self.all_sprites_group = pygame.sprite.Group()
         self.ships = [AverageShip, Tank, GlassCannon]
         for i, ship in enumerate(self.ships):
-            ship = ship(None, None, (i+1)*300, 360)
+            ship = ship(None, (i+1)*300, 360)
             ship.add(self.all_sprites_group)
             ship_name = GameObject()
             ship_name.image = pygame.Surface([300, 50])

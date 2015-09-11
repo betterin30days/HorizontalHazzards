@@ -5,9 +5,6 @@ from ship.gameobject import *
 from assets.art.spritesheet import *
 
 class Hero(Ship, Spritesheet):
-    weapons = [BasicPew(), BasicPew2(), BasicPew3(), BasicPew4(), BasicPew5()]
-        #TODO: Rework - sprite.group + actual inventory slots
-    weapon_index = 0
     level_xp_start = 100
     level_xp_next = 0
     level_interval = 2
@@ -28,8 +25,8 @@ class Hero(Ship, Spritesheet):
     is_on_level = False
     target_x, target_y = None, None
 
-    def __init__(self, on_weapon_update_callback = None, on_status_effect_callback = None, x = 0, y = 0):
-        super().__init__(on_weapon_update_callback, on_status_effect_callback)
+    def __init__(self, on_status_effect_callback = None, x = 0, y = 0):
+        super().__init__(on_status_effect_callback)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'hero_sprite_sheet.png'),
@@ -43,20 +40,9 @@ class Hero(Ship, Spritesheet):
         self.rect.center = (x, y)
         self.x = x
         self.y = y
-        self.weapon_index_update(5)
         self.health = self.health_max
         self.level = 1
         self.level_xp_next = self.level_xp_start
-
-    def weapon_index_update(self, index):
-        self.weapon_index = index-1
-        self.on_weapon_update (self.weapons[self.weapon_index])
-
-    def weapon_index_advance(self):
-        if self.weapon_index + 1 >= len(self.weapons):
-            self.weapon_index_update(1)
-        else:
-            self.weapon_index_update(self.weapon_index + 2)
 
     def enemy_missed_increase(self):
         self.enemy_missed_total += 1
@@ -153,12 +139,12 @@ class Hero(Ship, Spritesheet):
         self.kill()
 
 class AverageShip(Hero):
-    name = "Average"
-    color = (0, 0, 255)
+    name = "T3ST"
+    color = (240, 234, 214)
     velocity_max = 25
-    health_max = 100
+    health_max = 80
     health_multiplier = 1.05
-    damage_multiplier = 1.10
+    damage_multiplier = 1.05
     animation_row = 1
 
 class Tank(Hero):

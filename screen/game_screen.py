@@ -1,7 +1,6 @@
 import sys
 from screen.screen import *
 from screen.shop_screen import *
-from weapon.weapon import *
 from ship.gameobject import *
 from ship.hero import *
 from ship.baddie import *
@@ -22,7 +21,6 @@ class Game_Screen(Screen):
         self.level = Level()
         self.level.key = self.level_index
         self.ship = ship_class()
-        self.ship.on_weapon_update_callback = self.level.on_weapon_update_callback
         self.ship.on_status_effect_callback = self.level.on_status_effect_callback
         self.level.on_start(self.ship)
 
@@ -36,14 +34,12 @@ class Game_Screen(Screen):
         #         500,
         #         1,
         #         lambda xy: MiniBoss(
-        #             self.level.on_weapon_update_callback,
         #             self.level.on_status_effect_callback,
         #             self.level.baddie_bullet_add_callback,
         #             self.level.baddie_on_death_callback,
         #             self.level.baddie_on_flee_callback,
         #             xy[0],
-        #             xy[1],
-        #             weapon=BasicPew4())))
+        #             xy[1])))
         self.level.spawner_add(
             Spawner(
                 self,
@@ -54,15 +50,13 @@ class Game_Screen(Screen):
                 500,
                 5,
                 lambda xy: R2LShootingBaddie(
-                    self.level.on_weapon_update_callback,
                     self.level.on_status_effect_callback,
                     self.level.baddie_bullet_add_callback,
                     self.level.baddie_on_death_callback,
                     self.level.baddie_on_flee_callback,
                     xy[0],
                     xy[1],
-                    [(700,400), (500,300), (200, 600)],
-                    weapon=BasicPew4())))
+                    [(700,400), (500,300), (200, 600)])))
         # self.level.spawner_add(
         #     Spawner(
         #         self,
@@ -73,14 +67,12 @@ class Game_Screen(Screen):
         #         300,
         #         5,
         #         lambda xy: Baddie(
-        #             self.level.on_weapon_update_callback,
         #             self.level.on_status_effect_callback,
         #             self.level.baddie_bullet_add_callback,
         #             self.level.baddie_on_death_callback,
         #             self.level.baddie_on_flee_callback,
         #             xy[0],
-        #             xy[1],
-        #             weapon=BasicPew4()),
+        #             xy[1]),
         #         x_offset = 0,
         #         y_offset = 25))
         # self.level.spawner_add(
@@ -93,14 +85,12 @@ class Game_Screen(Screen):
         #         100,
         #         6,
         #         lambda xy: Baddie(
-        #             self.level.on_weapon_update_callback,
         #             self.level.on_status_effect_callback,
         #             self.level.baddie_bullet_add_callback,
         #             self.level.baddie_on_death_callback,
         #             self.level.baddie_on_flee_callback,
         #             xy[0],
-        #             xy[1],
-        #             weapon=BasicPew4()),
+        #             xy[1]),
         #         x_offset = 0,
         #         y_offset = 100))
 
@@ -117,7 +107,6 @@ class Game_Screen(Screen):
                 self.level_index += 1
                 self.level = Level()
                 self.level.key = self.level_index
-                self.ship.on_weapon_update_callback = self.level.on_weapon_update_callback
                 self.ship.on_status_effect_callback = self.level.on_status_effect_callback
                 self.level.on_start(self.ship)
                 self.level.spawner_add(
@@ -130,17 +119,14 @@ class Game_Screen(Screen):
                         300,
                         5,
                         lambda xy: Baddie(
-                            self.level.on_weapon_update_callback,
                             self.level.on_status_effect_callback,
                             self.level.baddie_bullet_add_callback,
                             self.level.baddie_on_death_callback,
                             self.level.baddie_on_flee_callback,
                             xy[0],
-                            xy[1],
-                            weapon=BasicPew4()),
+                            xy[1]),
                         x_offset = 0,
                         y_offset = 25))
-
             else:
                 self.level.update(delta)
 

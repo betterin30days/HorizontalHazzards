@@ -11,9 +11,9 @@ class Baddie(Ship, Spritesheet):
     #
     waypoint = []
     waypoint_index = 0
-    health_multiplier = 1.15
-    damage_multiplier = 1.1
-    experience_total = 75
+    health_multiplier = 1.08
+    damage_multiplier = 1.08
+    experience_total = 15
     #
     collision_damage = None #Calculated
     collision_damage_base = 10
@@ -27,23 +27,20 @@ class Baddie(Ship, Spritesheet):
     animation_time_ms = 200
     animation_current_ms = 0
 
-    on_weapon_update_callback = None
     on_status_effect_callback = None
     bullet_add_callback = None
     on_death_callback = None
     on_flee_callback = None
 
     def __init__(self,
-        on_weapon_update_callback,
         on_status_effect_callback,
         bullet_add_callback,
         on_death_callback,
         on_flee_callback,
         x, y,
         waypoint = None,
-        level = 1,
-        weapon = None):
-        Ship.__init__(self, on_weapon_update_callback, on_status_effect_callback)
+        level = 1):
+        Ship.__init__(self, on_status_effect_callback)
         Spritesheet.__init__(self,
             #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'droppable_sprite_sheet.png'),
@@ -55,9 +52,7 @@ class Baddie(Ship, Spritesheet):
         self.bullet_add_callback = bullet_add_callback
         self.on_death_callback = on_death_callback
         self.on_flee_callback = on_flee_callback
-        if weapon:
-            weapon.bullet_velocity *= -1
-            self.on_weapon_update (weapon)
+        self.bullet_velocity *= -1
         self.sprite_image = self.animations[self.animation_counter]
         self.sprite_rect = self.sprite_image.get_rect()
         self.image = pygame.Surface([self.sprite_rect.width*self.sprite_scale, self.sprite_rect.height*self.sprite_scale]).convert()
@@ -68,9 +63,8 @@ class Baddie(Ship, Spritesheet):
         self.level = level
         #TODO: update spawner to use lambda parameter for level
 
-        self.on_weapon_update_callback = on_weapon_update_callback
         self.on_status_effect_callback = on_status_effect_callback
-        self.health_max = 100 * pow(self.health_multiplier, self.level)
+        self.health_max = 80 * pow(self.health_multiplier, self.level)
         self.collision_damage = self.collision_damage_base * pow(self.damage_multiplier, self.level)
         #print ("level {} ==> heath {}, damage {}".format (self.level, self.health_max, self.collision_damage))
         self.health = self.health_max
@@ -100,8 +94,7 @@ class Baddie(Ship, Spritesheet):
     def update(self, delta):
         super().update(delta)
         self.collision_time_since_last += delta
-        if self.weapon.sprite:
-            self.shoot_bullet()
+        self.shoot_bullet()
 
         self.animation_current_ms += delta
         if self.animation_time_ms <= self.animation_current_ms:

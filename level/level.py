@@ -3,7 +3,6 @@ from screen.screen import *
 from ship.baddie import *
 from ship.spawner import *
 from ship.shared import *
-from weapon.weapon import *
 from screen.heads_up_display import *
 
 class Level(Screen):
@@ -29,7 +28,6 @@ class Level(Screen):
     baddie_bullet_group = None
     all_drops_group = None
     status_effects = None
-    all_weapons = None
 
     def __init__(self, screen_manager = None):
         super().__init__(screen_manager)
@@ -40,11 +38,10 @@ class Level(Screen):
         self.baddie_group = pygame.sprite.Group()
         self.baddie_bullet_group = pygame.sprite.Group()
         self.all_drops_group = pygame.sprite.Group()
-    #Do not draw (status_effects, all_weapons); these will have images 
+    #Do not draw status_effects; these will have images 
     #later but more importantly this allows sprite.kill() to remove 
     #all references. if we keep a hard list the object will exist
         self.status_effects = pygame.sprite.Group()
-        self.all_weapons = pygame.sprite.Group()
         #Level state
         self.is_level_over = False
         self.is_on_start = True
@@ -60,8 +57,6 @@ class Level(Screen):
         self.ship.x = -100
         self.ship.y = -100
         self.ship.is_on_level = False
-        self.ship.weapon_index_update(self.ship.weapon_index + 1)
-            #TODO: Hack to equip weapon to level
         hud = HeadsUpDisplay(self.ship, self)
         hud.add(self.heads_up_display, self.all_sprites_group)
         self.ship.add(self.ship_group)
@@ -95,11 +90,6 @@ class Level(Screen):
     def hero_bullet_add_callback(self, hero, bullet):
         bullet.add(self.all_sprites_group, self.hero_bullet_group)
 
-    def on_weapon_update_callback(self, ship, weapon_before, weapon_after):
-        if weapon_before in self.all_weapons:
-            self.all_weapons.remove(weapon_before)
-        self.all_weapons.add(weapon_after)
-
     def on_status_effect_callback(self, ship, status_effect):
         self.status_effects.add(status_effect)
 
@@ -120,18 +110,6 @@ class Level(Screen):
                     self.is_paused = not self.is_paused
                 elif event.key == K_SPACE:
                     self.is_space_down = True
-                elif event.key == K_TAB:
-                    self.ship.weapon_index_advance()
-                elif event.key == K_1:
-                    self.ship.weapon_index_update(1)
-                elif event.key == K_2:
-                    self.ship.weapon_index_update(2)
-                elif event.key == K_3:
-                    self.ship.weapon_index_update(3)
-                elif event.key == K_4:
-                    self.ship.weapon_index_update(4)
-                elif event.key == K_5:
-                    self.ship.weapon_index_update(5)
                 elif event.key == K_w:
                     if Shared.UP in self.move_y:
                         self.move_y.remove(Shared.UP)
@@ -222,14 +200,10 @@ class Level(Screen):
                 if bullet:
                     bullet.add(self.all_sprites_group, self.hero_bullet_group)
 
-            self.all_weapons.update(delta)
             for spawner in self.spawners:
                 spawner.update(delta)
                 if spawner.is_completed():
                     self.spawners.remove(spawner)
-
-            for weapon in self.all_weapons:
-                weapon.update(delta)
 
             for status_effect in self.status_effects:
                 status_effect.update(delta)
