@@ -26,7 +26,7 @@ class GameObject(pygame.sprite.Sprite):
         surface.blit(self.image, (self.x, self.y))
 
 from weapon.weapon import *
-class Ship(GameObject):
+class GameEntity(GameObject):
     name = ""
     health = 0
     health_max = 0
@@ -48,6 +48,9 @@ class Ship(GameObject):
     health_multiplier = 1.0
     damage_multiplier = 1.0
     health_change = None
+    #Waypoint movement
+    waypoints = []
+    destination = None
     #Bullet
     shots_per_second = 2.5
     has_fired = False
@@ -56,7 +59,7 @@ class Ship(GameObject):
     bullet_color = (240, 234, 214)
     bullet_damage = 10
 
-    def __init__(self, on_status_effect_callback):
+    def __init__(self, on_status_effect_callback = None):
         super().__init__()
         self.status_effects = pygame.sprite.Group()
         self.on_status_effect_callback = on_status_effect_callback
@@ -66,6 +69,28 @@ class Ship(GameObject):
 
     def update(self, delta):
         self.fired_last_bullet_time += delta
+        if len(self.waypoints) and self.destination is None:
+            self.destination = self.waypoints.pop(0)
+
+        if self.destination:
+            dx = self.destination[0] - self.x
+            dy = self.destination[1] - self.y
+            x, y = None, None
+            if dx < -10:
+                x = Shared.LEFT
+            elif dx > 10:
+                x = Shared.RIGHT
+            if dy < -10:
+                y = Shared.UP
+            elif dy > 10:
+                y = Shared.DOWN
+
+            self.velocity_update(x, y)
+            if self.destination[0]-25 <= self.x <= self.destination[0]+25 and self.destination[1]-25 <= self.y <= self.destination [1]+25:
+                self.destination = None
+                x = Shared.LEFT
+                y = None
+
         if self.move_y:
             if self.move_y.y_delta < 0:
                 self.velocity_y += -1
@@ -122,7 +147,7 @@ class Ship(GameObject):
 
     def shoot_bullet(self):
         if self.is_alive():
-            bullet = self.bullet_create(self.x, self.y)
+            bullet = self.bullet_create()
             if bullet:
                 bullet.damage *= pow(self.damage_multiplier, self.level)
                 if self.bullet_velocity_update:
@@ -138,11 +163,11 @@ class Ship(GameObject):
                 #     ))
                 return bullet
 
-    def bullet_create(self, x, y, override_throttle = False):
+    def bullet_create(self, override_throttle = False):
         if override_throttle or (not self.has_fired or self.fired_last_bullet_time >= (1.0 / self.shots_per_second * 1000)):
             self.fired_last_bullet_time = 0
             self.has_fired = True
-            return Bullet(x, y,
+            return Bullet(self.x, self.y,
                     self,
                     self.bullet_color,
                     self.bullet_radius,
@@ -217,3 +242,35 @@ class Ship(GameObject):
 
     def on_death(self):
         pass
+
+class Ship(GameEntity):
+    spritesheet = None
+    animation_time_ms = 200
+    sprite_scale = 1
+    sprite_width = 100
+    sprite_height = 50
+
+    def __init__(self, on_status_effect_callback = None, x = 0, y = 0):
+        super().__init__(on_status_effect_callback)
+        self.animation_counter = 0
+        self.animation_current_ms = 0
+        self.sprite_image = None
+        self.image = pygame.Surface([self.sprite_width*self.sprite_scale, self.sprite_height*self.sprite_scale]).convert()
+        self.image.set_colorkey((255, 255, 255), pygame.RLEACCEL)
+        self.x, self.y = x, y
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.x, self.y)
+
+    def update(self, delta):
+        GameEntity.update(self, delta)
+        self.animation_current_ms += delta
+        if self.animation_time_ms <= self.animation_current_ms:
+            self.animation_current_ms = 0
+            self.animation_counter = self.animation_counter + 1 if self.animation_counter < 3 else 0
+            if self.sprite_scale != 1:
+                pygame.transform.scale(
+                        self.spritesheet.animations[self.animation_counter],
+                        (self.rect.width, self.rect.height),
+                        self.image)
+            else:
+                self.image = self.spritesheet.animations[self.animation_counter]

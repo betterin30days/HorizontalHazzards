@@ -21,9 +21,8 @@ class Bullet(GameObject):
         self.image.set_colorkey([1,1,1])
         self.image.fill([1,1,1])
         self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
-        self.x = x
-        self.y = y
+        self.rect.center = (x, y)
+        self.x, self.y = x, y
         self.damage = damage
         self.velocity = velocity
         self.color = color

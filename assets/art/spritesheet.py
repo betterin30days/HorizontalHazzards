@@ -7,6 +7,7 @@ class Spritesheet(object):
     width = 0
     height = 0
     animations = None
+
     def __init__(self, filename, frames, row, width, height, colorkey = None):
         self.animations = []
         self.sheet = pygame.image.load(filename).convert()

@@ -15,8 +15,6 @@ class Level(Screen):
     is_paused = False
     is_space_down = False
     is_lclick_down = False
-    waypoints = None
-    destination = None
     ship_on_start_waypoints = [(-100, -100), (0, 0), (100, 120), (200, 320), (360, 360)]
     ship_on_end_waypoints = [(980, 360), (1080, 480), (1180, 600), (1280, 720), (1380, 820)]
 
@@ -47,16 +45,15 @@ class Level(Screen):
         self.is_on_start = True
         self.is_on_level = False
         self.is_on_compl = False
-        self.waypoints = copy.copy(self.ship_on_start_waypoints)
         self.move_x = []
         self.move_y = []
         self.spawners = []
 
     def on_start(self, ship):
         self.ship = ship
-        self.ship.x = -100
-        self.ship.y = -100
+        self.ship.x, self.ship.y = -100, -100
         self.ship.is_on_level = False
+        self.ship.waypoints = copy.copy(self.ship_on_start_waypoints)
         hud = HeadsUpDisplay(self.ship, self)
         hud.add(self.heads_up_display, self.all_sprites_group)
         self.ship.add(self.ship_group)
@@ -78,8 +75,7 @@ class Level(Screen):
 
     def baddie_on_death_callback(self, baddie):
         drops = Droppable_Factory.drop_generate(baddie.name)
-        x = baddie.x
-        y = baddie.y
+        x, y = baddie.x, baddie.y
         mod = math.sqrt(len(drops))
         for i, drop in enumerate(drops):
             drop.draw(x + 10*(i%mod), y + 10*(i/mod))
@@ -111,34 +107,26 @@ class Level(Screen):
                 elif event.key == K_SPACE:
                     self.is_space_down = True
                 elif event.key == K_w:
-                    if Shared.UP in self.move_y:
-                        self.move_y.remove(Shared.UP)
+                    if Shared.UP in self.move_y: self.move_y.remove(Shared.UP)
                     self.move_y.append(Shared.UP)
                 elif event.key == K_s:
-                    if Shared.DOWN in self.move_y:
-                        self.move_y.remove(Shared.DOWN)
+                    if Shared.DOWN in self.move_y: self.move_y.remove(Shared.DOWN)
                     self.move_y.append(Shared.DOWN)
                 elif event.key == K_a:
-                    if Shared.LEFT in self.move_x:
-                        self.move_x.remove(Shared.LEFT)
+                    if Shared.LEFT in self.move_x: self.move_x.remove(Shared.LEFT)
                     self.move_x.append(Shared.LEFT)
                 elif event.key == K_d:
-                    if Shared.RIGHT in self.move_x:
-                        self.move_x.remove(Shared.RIGHT)
+                    if Shared.RIGHT in self.move_x: self.move_x.remove(Shared.RIGHT)
                     self.move_x.append(Shared.RIGHT)
             elif event.type == KEYUP:
                 if event.key == K_w:
-                    if Shared.UP in self.move_y:
-                        self.move_y.remove(Shared.UP)
+                    if Shared.UP in self.move_y: self.move_y.remove(Shared.UP)
                 elif event.key == K_s:
-                    if Shared.DOWN in self.move_y:
-                        self.move_y.remove(Shared.DOWN)
+                    if Shared.DOWN in self.move_y: self.move_y.remove(Shared.DOWN)
                 elif event.key == K_a:
-                    if Shared.LEFT in self.move_x:
-                        self.move_x.remove(Shared.LEFT)
+                    if Shared.LEFT in self.move_x: self.move_x.remove(Shared.LEFT)
                 elif event.key == K_d:
-                    if Shared.RIGHT in self.move_x:
-                        self.move_x.remove(Shared.RIGHT)
+                    if Shared.RIGHT in self.move_x: self.move_x.remove(Shared.RIGHT)
                 elif event.key == K_SPACE:
                     self.is_space_down = False
 
@@ -146,7 +134,7 @@ class Level(Screen):
         if self.is_paused:
             delta = 0
 
-        if self.is_on_start and self.destination is None and len(self.waypoints) == 0 and not self.is_on_compl:
+        if self.is_on_start and self.ship.destination is None and len(self.ship.waypoints) == 0 and not self.is_on_compl:
             self.is_on_start = False
             self.is_on_level = True
             self.ship.is_on_level = True
@@ -155,40 +143,17 @@ class Level(Screen):
             self.is_on_level = False
             self.ship.is_on_level = False
             self.is_on_compl = True
-            self.waypoints = copy.copy(self.ship_on_end_waypoints)
-        if self.is_on_compl and self.destination is None and len(self.waypoints) == 0:
+            self.ship.waypoints = copy.copy(self.ship_on_end_waypoints)
+        if self.is_on_compl and self.ship.destination is None and len(self.ship.waypoints) == 0:
             self.is_on_compl = False
             self.is_level_over = True
-
-        if self.is_on_start or self.is_on_compl:
-            #print("{}, {} ==> {} : {}".format(self.ship.x, self.ship.y, self.destination, self.waypoints))
-            if self.destination is None:
-                self.destination = self.waypoints.pop(0)
-            dx = self.destination[0] - self.ship.x
-            dy = self.destination[1] - self.ship.y
-            x, y = None, None
-            if dx < -10:
-                x = Shared.LEFT
-            elif dx > 10:
-                x = Shared.RIGHT
-            if dy < -10:
-                y = Shared.UP
-            elif dy > 10:
-                y = Shared.DOWN
-
-            self.ship.velocity_update(x, y)
-            if self.destination[0]-25 <= self.ship.x <= self.destination[0]+25 and self.destination[1]-25 <= self.ship.y <= self.destination [1]+25:
-                self.destination = None
-                x = Shared.LEFT
-                y = None
 
         self.ship_group.update(delta)
         self.all_sprites_group.update(delta)
         if self.is_on_level:
             self.time_accrued += delta
             self.heads_up_display.update(delta)
-            dx = None
-            dy = None
+            dx, dy = None, None
             if self.move_x:
                 dx = self.move_x[len(self.move_x)-1]
             if self.move_y:
@@ -212,8 +177,7 @@ class Level(Screen):
             collision = pygame.sprite.groupcollide(
                 self.hero_bullet_group,
                 self.baddie_group,
-                True,
-                False)
+                True, False)
             for bullet, enemys in collision.items():
                 for enemy in enemys:
                     bullet.on_collision(enemy)
@@ -223,8 +187,7 @@ class Level(Screen):
             collision = pygame.sprite.groupcollide(
                 self.baddie_bullet_group,
                 self.ship_group,
-                True,
-                False)
+                True, False)
             for bullet, heros in collision.items():
                 for hero in heros:
                     bullet.on_collision(hero)
@@ -233,8 +196,7 @@ class Level(Screen):
             collision = pygame.sprite.groupcollide(
                 self.baddie_group,
                 self.ship_group,
-                False,
-                False)
+                False, False)
             for baddie, ships in collision.items():
                 for ship in ships:
                     baddie.on_collision(ship)
@@ -243,8 +205,7 @@ class Level(Screen):
             collision = pygame.sprite.groupcollide(
                self.all_drops_group,
                self.ship_group,
-               True,
-               False)
+               True, False)
             for drop, ships in collision.items():
                 for ship in ships:
                     ship.on_droppable_pickup(drop)

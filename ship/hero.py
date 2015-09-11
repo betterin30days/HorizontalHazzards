@@ -4,7 +4,7 @@ from ship.shared import *
 from ship.gameobject import *
 from assets.art.spritesheet import *
 
-class Hero(Ship, Spritesheet):
+class Hero(Ship):
     level_xp_start = 100
     level_xp_next = 0
     level_interval = 2
@@ -17,34 +17,24 @@ class Hero(Ship, Spritesheet):
     #Should be attributes available from the sprite system
     sprite_width = 100
     sprite_height = 50
-    #animation
-    animation_counter = 0
-    animation_time_ms = 200
-    animation_current_ms = 0
-
     is_on_level = False
     target_x, target_y = None, None
 
     def __init__(self, on_status_effect_callback = None, x = 0, y = 0):
-        super().__init__(on_status_effect_callback)
-        Spritesheet.__init__(self,
+        super().__init__(on_status_effect_callback, x, y)
+        self.spritesheet = Spritesheet(
             #filename, frames, row, width, height, colorkey = None
             os.path.join('assets', 'art', 'hero_sprite_sheet.png'),
             4,
             self.animation_row,
-            100,
-            50,
+            self.sprite_width, self.sprite_height,
             (255, 255, 255))
-        self.image = self.animations[self.animation_counter]
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.x = x
-        self.y = y
         self.health = self.health_max
         self.level = 1
         self.level_xp_next = self.level_xp_start
 
     def enemy_missed_increase(self):
+        #TODO: this is level's job
         self.enemy_missed_total += 1
 
     def on_level_up(self):
@@ -57,6 +47,7 @@ class Hero(Ship, Spritesheet):
         print ("Level {}! Next level at {} xp. Max health: {};".format(self.level, self.level_xp_next, self.health_max))
 
     def on_killed(self, target):
+        self.time_since_kill = 0
         self.experience_total += target.experience_total
         self.kills_total += 1
         self.kill_streak += 1
@@ -67,11 +58,9 @@ class Hero(Ship, Spritesheet):
             self.kills_total,
             self.kill_streak,
             self.time_since_kill))
-        self.time_since_kill = 0
 
     def target_update(self, target_x, target_y):
-        self.target_x = target_x
-        self.target_y = target_y
+        self.target_x, self.target_y = target_x, target_y
 
     # slope = 0.0
     # b = 0
@@ -81,7 +70,6 @@ class Hero(Ship, Spritesheet):
         '''Update bullet velocity to pass through target'''
         if self.target_x and self.target_y:
             self.bullet_target_velocity_update(bullet, (self.target_x, self.target_y))
-
             #self.slope = (self.target_y-self.y)/(self.target_x-self.x)
             #self.b = self.y - self.slope * self.x
             #self.y_1280x = self.slope*1280+self.b
@@ -113,15 +101,6 @@ class Hero(Ship, Spritesheet):
                 self.on_level_up()
             if self.time_since_kill > 3000:
                 self.kill_streak = 0
-
-        self.animation_current_ms += delta
-        if self.animation_time_ms <= self.animation_current_ms:
-            if self.animation_counter < 3:
-                self.animation_counter += 1
-            else:
-                self.animation_counter = 0
-            self.image = self.animations[self.animation_counter]
-            self.animation_current_ms = 0
 
     def on_death(self):
         print("YOU DIED")
