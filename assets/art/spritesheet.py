@@ -6,8 +6,10 @@ class Spritesheet(object):
     row = None
     width = 0
     height = 0
-    animations = []
+    animations = None
+
     def __init__(self, filename, frames, row, width, height, colorkey = None):
+        self.animations = []
         self.sheet = pygame.image.load(filename).convert()
         self.frames = frames
         self.row = row - 1
