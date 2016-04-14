@@ -19,17 +19,20 @@ class Screen_Manager(object):
 
     def handle_events(self):
         if self.screens:
-            self.screens[0].handle_events()
+            self.screens[-1].handle_events()
 
     def update(self):
         delta = self.clock.tick(60)
         if self.screens:
-            self.screens[0].update(delta)
+            self.screens[-1].update(delta)
+        else:
+            self.quit()
 
     def display(self):
         if self.screens:
-            self.screens[0].display()
+            self.screens[-1].display()
 
     def quit(self):
         if self.screens:
-            self.screens[0].quit()
+            for screen in self.screens:
+                screen.quit()

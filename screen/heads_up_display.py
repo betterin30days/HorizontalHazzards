@@ -26,10 +26,13 @@ class HeadsUpItem(GameObject):
 class HeadsUpDisplay(GameObject):
     font = None
     hero = None
+    level = None
     heads_up_items = []
 
-    def __init__(self, hero):
+    def __init__(self, hero, level):
+        super().__init__()
         self.hero = hero
+        self.level = level
         self.image = pygame.Surface([1280, 100])
         self.image.set_colorkey([1, 1, 1])
         self.image.fill([1, 1, 1])
@@ -39,12 +42,14 @@ class HeadsUpDisplay(GameObject):
         self.heads_up_items.append(HeadsUpItem(self.font, "Health",
             lambda: "{}/{}".format(
                 int(self.hero.health), int(self.hero.health_max)), 25, 50))
-        self.heads_up_items.append(HeadsUpItem(self.font, "Level", lambda: int(self.hero.level), 25, 75))   
+        self.heads_up_items.append(HeadsUpItem(self.font, "XPLvl", lambda: int(self.hero.level), 25, 75))   
         self.heads_up_items.append(HeadsUpItem(self.font, "$$", lambda: int(self.hero.currency), 250, 50))
         self.heads_up_items.append(HeadsUpItem(self.font, "XP",
             lambda: "{}/{}".format(
                 int(self.hero.experience_total if self.hero.level == 1 else self.hero.experience_total - self.hero.level_xp_start * pow(2, self.hero.level - 2)),
                 int(self.hero.level_xp_start if self.hero.level == 1 else self.hero.level_xp_start * pow(2, self.hero.level - 2))), 250, 75))
+
+        self.heads_up_items.append(HeadsUpItem(self.font, "Level", lambda: int(self.level.key), 600, 25))
         self.heads_up_items.append(HeadsUpItem(self.font, "Killed", lambda: int(self.hero.kills_total), 800, 50))
         self.heads_up_items.append(HeadsUpItem(self.font, "Missed", lambda: int(self.hero.enemy_missed_total), 800, 75))
         self.heads_up_items.append(HeadsUpItem(self.font, "Hitt", lambda: int(self.hero.bullet_hitt_count), 1000, 50))
@@ -54,13 +59,8 @@ class HeadsUpDisplay(GameObject):
         self.heads_up_items.append(HeadsUpItem(self.font, "Total Damage Dealt", lambda: int(self.hero.damage_dealt_total), 800, 100))
 
     def update(self, delta):
-        #Weapons display
-        pygame.draw.rect(self.image, (1, 1, 1)  , (640-50*2.5,25,50*5,50), 0)
-        pygame.draw.rect(self.image, (128, 0, 0), (640-50*2.5,25,50*5,50), 1)
-        for i, weapon in enumerate(Weapon_Type.types()):
-            self.draw_text(str(weapon), 640-50*2.5+i*50+5, 55, 20)
-            pygame.draw.rect(self.image, (128, 0, 0), (640-50*2.5+i*50,25,50,50), 1)
-        pygame.draw.rect(self.image, (0, 128, 0), (640-50*2.5+(self.hero.weapon.sprite.weapon_type-1)*50,25,50,50), 1)
+        for hui in self.heads_up_items:
+            hui.draw(self.image)
 
     def draw_text(self, text, x, y, width=200):
         text = self.font.render(text, 1, (255, 255, 255), (1, 1, 1))
@@ -68,8 +68,3 @@ class HeadsUpDisplay(GameObject):
         textpos.left, textpos.bottom = x, y
         pygame.draw.rect(self.image, (1, 1, 1), (x, y-25, width, 25), 0)
         self.image.blit(text, textpos)
-
-    def draw(self, surface):
-        for hui in self.heads_up_items:
-            hui.draw(self.image)
-        surface.blit(self.image, (0, 0))
